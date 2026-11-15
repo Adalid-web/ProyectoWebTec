@@ -1,0 +1,60 @@
+﻿// Extracto de ProyectoTecWeb/Controllers/LeaderboardBoliviaController.cs
+[ApiController]
+[Route("api/leaderboard/bolivia")]
+[Tags("Leaderboard Bolivia")]
+public class LeaderboardBoliviaController : ControllerBase
+{
+    private readonly AppDbContext _db;
+
+    public LeaderboardBoliviaController(AppDbContext db)
+    {
+        _db = db;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<ScoreResponseDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetTop([FromQuery] int limit = 100)
+    {
+        limit = Math.Clamp(limit, 1, 500);
+
+        var scores = await _db.BoliviaScores
+            .AsNoTracking()
+            .OrderByDescending(score => score.Score)
+            .ThenBy(score => score.CreatedAt)
+            .Take(limit)
+            .Select(score => new ScoreResponseDto
+            {
+                Id = score.Id,
+                PlayerName = score.PlayerName,
+                Score = score.Score,
+                CreatedAt = score.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(scores);
+    }
+
+    // ... POST, PUT y DELETE completos en el archivo original ...
+
+    [HttpPost]
+    [ProducesResponseType(typeof(ScoreResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ScoreResponseDto>> Create([FromBody] ScoreRequestDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.PlayerName))
+        {
+            return BadRequest(new { message = "El nombre no puede estar vacío." });
+        }
+
+        var score = new ScoreBolivia
+        {
+            PlayerName = dto.PlayerName.Trim(),
+            Score = dto.Score,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.BoliviaScores.Add(score);
+        await _db.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetById), new { id = score.Id }, ToResponse(score));
+    }

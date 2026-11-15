@@ -1,0 +1,52 @@
+﻿PRUEBA DE PERSISTENCIA CON VOLUMEN NOMBRADO
+==========================================
+POST /api/leaderboard/bolivia body={"playerName":"Persistencia","score":7}
+Creado id=7 playerName=Persistencia score=7
+
+docker compose --env-file .env -f despliegue.yml down
+ Container proyectotecweb-api Stopping 
+ Container proyectotecweb-api Stopped 
+ Container proyectotecweb-api Removing 
+ Container proyectotecweb-api Removed 
+ Container proyectotecweb-db Stopping 
+ Container proyectotecweb-db Stopped 
+ Container proyectotecweb-db Removing 
+ Container proyectotecweb-db Removed 
+ Network proyectotecweb_appnet Removing 
+ Network proyectotecweb_appnet Removed 
+
+docker compose --env-file .env -f despliegue.yml up -d
+ Image nardolj/proyectowebtec:1.0.0 Pulling 
+ Image nardolj/proyectowebtec:1.0.0 Pulled 
+ Network proyectotecweb_appnet Creating 
+ Network proyectotecweb_appnet Creating 
+ Network proyectotecweb_appnet Created 
+ Network proyectotecweb_appnet Created 
+ Container proyectotecweb-db Creating 
+ Container proyectotecweb-db Created 
+ Container proyectotecweb-api Creating 
+ Container proyectotecweb-api Created 
+ Container proyectotecweb-db Starting 
+ Container proyectotecweb-db Started 
+ Container proyectotecweb-db Waiting 
+ Container proyectotecweb-db Healthy 
+ Container proyectotecweb-api Starting 
+ Container proyectotecweb-api Started 
+
+Health disponible después de 2 s: HTTP 200
+GET /api/leaderboard/bolivia/7 después del reinicio: id=7 playerName=Persistencia score=7
+
+docker volume ls --filter name=proyectotecweb_pgdata
+DRIVER    VOLUME NAME
+local     proyectotecweb_pgdata
+
+docker compose --env-file .env -f despliegue.yml ps
+NAME                 IMAGE                          COMMAND                  SERVICE    CREATED         STATUS                   PORTS
+proyectotecweb-api   nardolj/proyectowebtec:1.0.0   "dotnet ProyectoTecWÔÇª"   api        8 seconds ago   Up 2 seconds             0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+proyectotecweb-db    postgres:16-alpine             "docker-entrypoint.sÔÇª"   postgres   8 seconds ago   Up 7 seconds (healthy)   5432/tcp
+
+DELETE /api/leaderboard/bolivia/7 (limpieza del registro de prueba)
+HTTP 204
+
+RESULTADO: los datos sobrevivieron al reinicio; volumen nombrado conservado.
+

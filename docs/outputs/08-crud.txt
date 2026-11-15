@@ -1,0 +1,17 @@
+﻿
+Probando CRUD de bolivia en http://localhost:8080
+------------------------------------------------
+[OK]   GET /health -> 200
+[OK]   GET /health/db -> 200
+[OK]   POST crear -> 201
+[OK]   POST devuelve id -> True
+       id creado: 6
+[OK]   GET lista -> 200
+[OK]   GET lista contiene el id -> True
+[OK]   GET por id -> 200
+[OK]   PUT actualizar -> 204
+[OK]   GET refleja el puntaje actualizado -> 23
+[OK]   DELETE eliminar -> 204
+[OK]   GET posterior a DELETE -> 404
+------------------------------------------------
+CRUD de bolivia: OK

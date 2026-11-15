@@ -131,7 +131,7 @@ Este archivo no tiene sección `build`: usa directamente `nardolj/proyectowebtec
 - Repositorio: `https://hub.docker.com/r/nardolj/proyectowebtec`
 - Etiqueta exacta: `1.0.0`
 - También se publica `latest`.
-- Digest publicado: `sha256:23a98086f805...` (linux/amd64, 105 MB comprimida).
+- Digest publicado (linux/amd64): `sha256:23a98086f805dbb3d5879cef9f9c8f03bb4628f12cc4bbabeef52361dac074c2` (105 MB comprimida).
 - Descarga:
 
   ```powershell
@@ -225,6 +225,11 @@ El script prueba `POST`, `GET` lista, `GET` por ID, `PUT`, `DELETE` y verifica e
 
 También se puede usar Swagger en `http://localhost:8080/swagger`.
 
+## Entregables
+
+- Documento de evidencias: `docs/evidencias.pdf`.
+- ZIP del proyecto: `ProyectoTecWeb-LeonardoJulio.zip`, sin `.env`, `bin/` ni `obj/`.
+
 ## Uso de IA
 
 Se usó IA como apoyo para generar la estructura inicial del proyecto, el juego web y los archivos de despliegue. El código generado fue revisado, compilado y probado localmente antes de publicarlo.
@@ -242,7 +247,7 @@ Verificación realizada:
 5. `GET /health`, `GET /health/db` y `GET /api/leaderboard/bolivia`: respuestas HTTP 200.
 6. `scripts/test-crud.ps1`: `POST` 201, `GET` lista 200, `GET` por ID 200, `PUT` 204, `DELETE` 204 y `GET` posterior 404.
 7. Persistencia: después de `docker compose down` (sin `-v`) y volver a levantar el stack, los registros se conservaron en el volumen `proyectotecweb_pgdata`.
-8. Publicación: imagen subida a Docker Hub con etiquetas `1.0.0` y `latest`, digest `sha256:23a98086f805...`.
+8. Publicación: imagen subida a Docker Hub con etiquetas `1.0.0` y `latest`, digest `sha256:23a98086f805dbb3d5879cef9f9c8f03bb4628f12cc4bbabeef52361dac074c2`.
 
 Las capturas y el detalle de estas pruebas están en `docs/evidencias.pdf`.
 

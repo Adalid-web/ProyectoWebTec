@@ -1,0 +1,3 @@
+﻿constructor_config_exit=0
+constructor_build_key=True
+dockerfile_exists=True

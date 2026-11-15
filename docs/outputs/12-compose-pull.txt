@@ -1,0 +1,6 @@
+﻿docker compose --env-file .env -f despliegue.yml pull
+Image postgres:16-alpine Pulling
+Image nardolj/proyectowebtec:1.0.0 Pulling
+Image postgres:16-alpine Pulled
+Image nardolj/proyectowebtec:1.0.0 Pulled
+resultado=PULL_OK

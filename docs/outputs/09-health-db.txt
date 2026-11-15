@@ -1,0 +1,2 @@
+﻿{"status":"ok","database":"connected"}
+HTTP 200

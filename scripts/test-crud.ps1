@@ -92,7 +92,7 @@ Write-Host "       id creado: $id" -ForegroundColor DarkGray
 $list = Invoke-Api -Method Get -Url "$endpoint`?limit=100"
 if (-not (Check -Name "GET lista" -Expected 200 -Actual $list.Status)) { $failures++ }
 
-$listData = @($list.Content | ConvertFrom-Json)
+$listData = $list.Content | ConvertFrom-Json
 $found = @($listData | Where-Object { [int]$_.id -eq $id }).Count -gt 0
 if (-not (Check -Name "GET lista contiene el id" -Expected $true -Actual $found)) { $failures++ }
 
@@ -111,7 +111,7 @@ $deleted = Invoke-Api -Method Delete -Url "$endpoint/$id"
 if (-not (Check -Name "DELETE eliminar" -Expected 204 -Actual $deleted.Status)) { $failures++ }
 
 $missing = Invoke-Api -Method Get -Url "$endpoint/$id"
-if (-not (Check -Name "GET después de borrar" -Expected 404 -Actual $missing.Status)) { $failures++ }
+if (-not (Check -Name "GET posterior a DELETE" -Expected 404 -Actual $missing.Status)) { $failures++ }
 
 Write-Host "------------------------------------------------"
 if ($failures -eq 0) {

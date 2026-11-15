@@ -1,0 +1,4 @@
+﻿despliegue.yml: build_key=False
+compose_config=OK
+health=200
+health_db=200

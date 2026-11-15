@@ -1,0 +1,4 @@
+﻿471bf25 (HEAD -> main, origin/main, origin/HEAD) merge: integrar README inicial de GitHub
+5210180 docs: agregar capturas de Swagger y Docker Hub
+fe1b673 feat: API .NET 10 con juego Circle Rush y leaderboard de Bolivia
+4bdd2bb Initial commit

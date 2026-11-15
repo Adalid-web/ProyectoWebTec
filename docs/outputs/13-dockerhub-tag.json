@@ -1,0 +1,32 @@
+﻿{
+    "creator":  45896779,
+    "id":  1404169689,
+    "images":  [
+                   {
+                       "architecture":  "amd64",
+                       "features":  "",
+                       "variant":  null,
+                       "digest":  "sha256:23a98086f805dbb3d5879cef9f9c8f03bb4628f12cc4bbabeef52361dac074c2",
+                       "os":  "linux",
+                       "os_features":  "",
+                       "os_version":  null,
+                       "size":  110098704,
+                       "status":  "active",
+                       "last_pulled":  "2026-11-15T16:50:06.74868785Z",
+                       "last_pushed":  "2026-11-15T16:50:05.811542541Z"
+                   }
+               ],
+    "last_updated":  "2026-11-15T16:50:06.565148Z",
+    "last_updater":  45896779,
+    "last_updater_username":  "nardolj",
+    "name":  "1.0.0",
+    "repository":  33354751,
+    "full_size":  110098704,
+    "v2":  true,
+    "tag_status":  "active",
+    "tag_last_pulled":  "2026-11-15T16:50:06.74868785Z",
+    "tag_last_pushed":  "2026-11-15T16:50:06.565148Z",
+    "media_type":  "application/vnd.oci.image.index.v1+json",
+    "content_type":  "image",
+    "digest":  "sha256:a6fdf9ce2a6be8a6c9e47814f22012c39c2cb51182985c70d5a6463590e648c5"
+}

@@ -1,0 +1,7 @@
+﻿git check-ignore:
+.gitignore:2:.env	.env
+.gitignore:6:bin/	ProyectoTecWeb/bin
+.gitignore:7:obj/	ProyectoTecWeb/obj
+
+archivos trackeados que coinciden con bin/obj/.env: 0
+resultado=OK
