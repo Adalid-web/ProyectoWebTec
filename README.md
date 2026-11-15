@@ -131,11 +131,21 @@ Este archivo no tiene sección `build`: usa directamente `nardolj/proyectowebtec
 - Repositorio: `https://hub.docker.com/r/nardolj/proyectowebtec`
 - Etiqueta exacta: `1.0.0`
 - También se publica `latest`.
+- Digest publicado: `sha256:23a98086f805...` (linux/amd64, 105 MB comprimida).
 - Descarga:
 
   ```powershell
   docker pull nardolj/proyectowebtec:1.0.0
   ```
+
+La imagen se construyó y se subió con:
+
+```powershell
+docker build -t nardolj/proyectowebtec:1.0.0 .\ProyectoTecWeb
+docker tag nardolj/proyectowebtec:1.0.0 nardolj/proyectowebtec:latest
+docker push nardolj/proyectowebtec:1.0.0
+docker push nardolj/proyectowebtec:latest
+```
 
 ## Git
 
@@ -156,9 +166,20 @@ Base: `/api/leaderboard/bolivia`
 Ejemplo de creación:
 
 ```powershell
+$json = '{"playerName":"Leonardo","score":25}'
 curl.exe -X POST http://localhost:8080/api/leaderboard/bolivia `
   -H "Content-Type: application/json" `
-  -d '{\"playerName\":\"Leonardo\",\"score\":25}'
+  -d $json
+```
+
+También se puede usar `Invoke-RestMethod`:
+
+```powershell
+$body = @{ playerName = "Leonardo"; score = 25 } | ConvertTo-Json
+Invoke-RestMethod -Method Post `
+  -Uri http://localhost:8080/api/leaderboard/bolivia `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
 La tabla tiene las columnas:
@@ -206,17 +227,24 @@ También se puede usar Swagger en `http://localhost:8080/swagger`.
 
 ## Uso de IA
 
-Para el archivo `despliegue.yml` se consultó a una IA con este objetivo:
+Se usó IA como apoyo para generar la estructura inicial del proyecto, el juego web y los archivos de despliegue. El código generado fue revisado, compilado y probado localmente antes de publicarlo.
+
+Consulta principal para `despliegue.yml`:
 
 > Generar un Compose de despliegue para una API .NET 10 publicada como `nardolj/proyectowebtec:1.0.0` y PostgreSQL 16, usando una red compartida, volumen nombrado, healthcheck y variables desde `.env`, sin compilar desde el código fuente.
 
-La propuesta se verificó así:
+Verificación realizada:
 
-1. `docker compose --env-file .env -f despliegue.yml config` para validar la sintaxis y la interpolación.
-2. `docker compose --env-file .env -f despliegue.yml pull` para descargar la imagen publicada.
-3. `docker compose --env-file .env -f despliegue.yml up -d` y `docker compose ps` para confirmar ambos contenedores.
-4. `curl.exe http://localhost:8080/health` y una petición al leaderboard para confirmar que la API responde.
-5. Revisión de logs y de que no existe la clave `build` en `despliegue.yml`.
+1. `dotnet build -c Release`: compilación correcta, 0 warnings y 0 errores.
+2. `docker compose --env-file .env -f despliegue.yml config`: sintaxis e interpolación válidas; no existe la clave `build`.
+3. `docker compose --env-file .env -f despliegue.yml pull`: descarga correcta de `nardolj/proyectowebtec:1.0.0` desde Docker Hub.
+4. `up -d` y `ps`: contenedores `proyectotecweb-api` y `proyectotecweb-db` en ejecución; PostgreSQL con healthcheck.
+5. `GET /health`, `GET /health/db` y `GET /api/leaderboard/bolivia`: respuestas HTTP 200.
+6. `scripts/test-crud.ps1`: `POST` 201, `GET` lista 200, `GET` por ID 200, `PUT` 204, `DELETE` 204 y `GET` posterior 404.
+7. Persistencia: después de `docker compose down` (sin `-v`) y volver a levantar el stack, los registros se conservaron en el volumen `proyectotecweb_pgdata`.
+8. Publicación: imagen subida a Docker Hub con etiquetas `1.0.0` y `latest`, digest `sha256:23a98086f805...`.
+
+Las capturas y el detalle de estas pruebas están en `docs/evidencias.pdf`.
 
 ## Seguridad
 
