@@ -1,0 +1,19 @@
+# Entorno y secretos
+.env
+.env.local
+
+# .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/
+
+# Editores
+.idea/
+.vscode/
+
+# Entregables y logs
+*.zip
+*.log

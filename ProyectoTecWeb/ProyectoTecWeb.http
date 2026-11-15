@@ -1,0 +1,35 @@
+@host = http://localhost:8080
+
+### Health de la API
+GET {{host}}/health
+
+### Health de la base de datos
+GET {{host}}/health/db
+
+### Leaderboard de Bolivia (top 10)
+GET {{host}}/api/leaderboard/bolivia?limit=10
+
+### Crear puntuación
+# @name crearPuntaje
+POST {{host}}/api/leaderboard/bolivia
+Content-Type: application/json
+
+{
+  "playerName": "Leonardo",
+  "score": 25
+}
+
+### Obtener puntuación por ID (cambia el 1 por el ID creado)
+GET {{host}}/api/leaderboard/bolivia/1
+
+### Actualizar puntuación
+PUT {{host}}/api/leaderboard/bolivia/1
+Content-Type: application/json
+
+{
+  "playerName": "Leonardo Julio",
+  "score": 30
+}
+
+### Eliminar puntuación
+DELETE {{host}}/api/leaderboard/bolivia/1

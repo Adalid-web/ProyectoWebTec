@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07111f" />
+    <title>Circle Rush · ProyectoTecWeb</title>
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+    <div class="app">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">◉</span>
+                <div>
+                    <h1>Circle Rush</h1>
+                    <p>ProyectoTecWeb · Leaderboard por servidor</p>
+                </div>
+            </div>
+
+            <div class="server-picker">
+                <label for="serverSelect">Servidor</label>
+                <select id="serverSelect" aria-label="Elegir servidor"></select>
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="card game-card" aria-labelledby="gameTitle">
+                <div class="hud">
+                    <div class="hud-item">
+                        <span class="hud-label">Tiempo</span>
+                        <span class="hud-value"><strong id="timeValue">30</strong><small>s</small></span>
+                    </div>
+                    <div class="hud-item">
+                        <span class="hud-label">Puntos</span>
+                        <span class="hud-value"><strong id="scoreValue">0</strong></span>
+                    </div>
+                    <div class="hud-item hud-server">
+                        <span class="hud-label">Servidor</span>
+                        <span class="hud-value"><strong id="serverName">Bolivia</strong></span>
+                    </div>
+                </div>
+
+                <div class="time-track" aria-hidden="true">
+                    <div id="timeBar" class="time-fill"></div>
+                </div>
+
+                <h2 id="gameTitle" class="sr-only">Juego de círculos</h2>
+                <div id="gameArea" class="game-area" aria-label="Área de juego">
+                    <div id="startOverlay" class="overlay">
+                        <h2>¿Listo para el reto?</h2>
+                        <p>Haz clic en la mayor cantidad de círculos antes de que se acabe el tiempo.</p>
+                        <button id="startButton" class="btn btn-primary" type="button">Jugar 30 segundos</button>
+                    </div>
+
+                    <div id="endOverlay" class="overlay hidden">
+                        <h2>¡Tiempo!</h2>
+                        <p class="final-line">Tu puntaje: <strong id="finalScore">0</strong></p>
+                        <div class="save-row">
+                            <label class="sr-only" for="playerName">Tu nombre</label>
+                            <input id="playerName" maxlength="30" placeholder="Escribe tu nombre" autocomplete="nickname" />
+                            <button id="saveButton" class="btn btn-primary" type="button">Guardar puntuación</button>
+                        </div>
+                        <p id="saveMessage" class="message" role="status"></p>
+                        <button id="playAgainButton" class="btn btn-ghost" type="button">Jugar de nuevo</button>
+                    </div>
+                </div>
+
+                <div class="game-footer">
+                    <span id="statusText">Elige un servidor y empieza a jugar.</span>
+                    <a href="/swagger" target="_blank" rel="noreferrer">API docs</a>
+                </div>
+            </section>
+
+            <aside class="card leaderboard-card" aria-labelledby="leaderboardTitle">
+                <div class="leaderboard-header">
+                    <div>
+                        <h2 id="leaderboardTitle">Leaderboard</h2>
+                        <p id="leaderboardSubtitle">Top 10 · Bolivia</p>
+                    </div>
+                    <button id="refreshButton" class="btn btn-ghost btn-small" type="button">Actualizar</button>
+                </div>
+
+                <p id="leaderboardStatus" class="message" role="status"></p>
+                <ol id="leaderboardList" class="leaderboard-list"></ol>
+            </aside>
+        </main>
+
+        <footer class="footer">
+            <span>ProyectoTecWeb · .NET 10 + PostgreSQL</span>
+            <span>Leonardo Julio · Jheferson Velasco · Adalid Calizaya</span>
+        </footer>
+    </div>
+
+    <script src="/js/game.js"></script>
+</body>
+</html>
