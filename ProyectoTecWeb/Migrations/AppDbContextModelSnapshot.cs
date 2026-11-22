@@ -22,6 +22,157 @@ namespace ProyectoTecWeb.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ProyectoTecWeb.Models.JugadorArgentina", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Alias")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("alias");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_registro")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Alias")
+                        .IsUnique()
+                        .HasDatabaseName("ux_jugadores_argentina_alias");
+
+                    b.ToTable("jugadores_argentina", (string)null);
+                });
+
+            modelBuilder.Entity("ProyectoTecWeb.Models.LogroArgentina", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("descripcion");
+
+                    b.Property<DateTime>("FechaOtorgado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("fecha_otorgado")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("JugadorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("jugador_id");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("nombre");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JugadorId")
+                        .HasDatabaseName("ix_logros_argentina_jugador_id");
+
+                    b.ToTable("logros_argentina", (string)null);
+                });
+
+            modelBuilder.Entity("ProyectoTecWeb.Models.PartidaArgentina", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DuracionSegundos")
+                        .HasColumnType("integer")
+                        .HasColumnName("duracion_segundos");
+
+                    b.Property<DateTime>("JugadoEn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("jugado_en")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("JugadorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("jugador_id");
+
+                    b.Property<int>("Puntaje")
+                        .HasColumnType("integer")
+                        .HasColumnName("puntaje");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JugadorId")
+                        .HasDatabaseName("ix_partidas_argentina_jugador_id");
+
+                    b.ToTable("partidas_argentina", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_partidas_argentina_duracion", "duracion_segundos > 0");
+
+                            t.HasCheckConstraint("ck_partidas_argentina_puntaje", "puntaje >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("ProyectoTecWeb.Models.ScoreArgentina", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("PlayerName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("player_name");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer")
+                        .HasColumnName("score");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Score")
+                        .IsDescending()
+                        .HasDatabaseName("ix_leaderboard_argentina_score");
+
+                    b.ToTable("leaderboard_argentina", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_leaderboard_argentina_score", "score >= 0 AND score <= 100000");
+                        });
+                });
+
             modelBuilder.Entity("ProyectoTecWeb.Models.ScoreBolivia", b =>
                 {
                     b.Property<int>("Id")
@@ -57,6 +208,35 @@ namespace ProyectoTecWeb.Migrations
                         {
                             t.HasCheckConstraint("ck_leaderboard_bolivia_score", "score >= 0");
                         });
+                });
+
+            modelBuilder.Entity("ProyectoTecWeb.Models.LogroArgentina", b =>
+                {
+                    b.HasOne("ProyectoTecWeb.Models.JugadorArgentina", "Jugador")
+                        .WithMany("Logros")
+                        .HasForeignKey("JugadorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Jugador");
+                });
+
+            modelBuilder.Entity("ProyectoTecWeb.Models.PartidaArgentina", b =>
+                {
+                    b.HasOne("ProyectoTecWeb.Models.JugadorArgentina", "Jugador")
+                        .WithMany("Partidas")
+                        .HasForeignKey("JugadorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Jugador");
+                });
+
+            modelBuilder.Entity("ProyectoTecWeb.Models.JugadorArgentina", b =>
+                {
+                    b.Navigation("Logros");
+
+                    b.Navigation("Partidas");
                 });
 #pragma warning restore 612, 618
         }
