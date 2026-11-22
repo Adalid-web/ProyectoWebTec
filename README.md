@@ -1,37 +1,48 @@
 # ProyectoTecWeb · Circle Rush
 
-Juego de navegador muy simple: aparecen círculos en pantalla y hay que hacer clic en la mayor cantidad posible antes de que terminen los 30 segundos. Al final se guarda el nombre y el puntaje en una leaderboard de PostgreSQL.
+Juego web de 30 segundos: aparecen círculos en pantalla y hay que hacer clic en la mayor cantidad posible. Al final se guarda el puntaje en PostgreSQL y se muestra un leaderboard por país.
 
-El proyecto también cumple la consigna de Web API: cada servidor/país tiene su propia tabla y su propio controlador con CRUD completo.
+El proyecto también cumple la consigna de Web API: cada integrante tiene **cuatro tablas**, **dos proveedores de login** y controladores con operaciones protegidas por sesión.
 
-## Integrantes y tablas
+- Repositorio base: <https://github.com/NardoLj/ProyectoWebTec>
+- Guía de contribución: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Guía de autenticación: [docs/autenticacion.md](docs/autenticacion.md)
 
-| Integrante | Servidor | Tabla | Controlador | Estado |
-|---|---|---|---|---|
-| Leonardo Julio | Bolivia 🇧🇴 | `leaderboard_bolivia` | `LeaderboardBoliviaController` | Implementado |
-| Jheferson Velasco | Perú 🇵🇪 | `leaderboard_peru` | `LeaderboardPeruController` | Asignado |
-| Adalid Calizaya | Argentina 🇦🇷 | `leaderboard_argentina` | `LeaderboardArgentinaController` | Asignado |
+## Integrantes, tablas y proveedores
 
-> Este repositorio contiene por ahora la implementación de Leonardo Julio (Bolivia). Los otros dos controladores se integran con el mismo contrato descrito más abajo.
+| Integrante | País | Cuatro tablas | Login fácil | Login medio | Estado |
+|---|---|---|---|---|---|
+| **Leonardo Julio** (líder) | Bolivia 🇧🇴 | `leaderboard_bolivia`, `jugadores_bolivia`, `partidas_bolivia`, `logros_bolivia` | Discord | Google | En integración |
+| **Jheferson Velasco** | Perú 🇵🇪 | `leaderboard_peru`, `jugadores_peru`, `partidas_peru`, `logros_peru` | Twitch | Microsoft | Pendiente |
+| **Adalid Calizaya** | Argentina 🇦🇷 | `leaderboard_argentina`, `jugadores_argentina`, `partidas_argentina`, `logros_argentina` | Dropbox | Slack | Tablas integradas |
+
+El reparto está registrado antes de programar y no se repite ningún proveedor entre integrantes.
+
+> Adalid ya integró sus cuatro tablas de Argentina mediante la PR #1. Las demás etapas se trabajan en ramas separadas y se integran por Pull Request.
 
 ## Stack
 
 - .NET 10 Web API con controladores.
 - Entity Framework Core 10 + Npgsql.
 - PostgreSQL 16.
-- Docker + Docker Compose.
+- Cookie de sesión + OAuth con Google y Discord (los compañeros agregan sus proveedores).
 - HTML, CSS y JavaScript sin frameworks para el juego.
-- Swagger para probar la API.
+- Docker + Docker Compose.
+- Swagger para documentar y probar la API.
 
 ## Estructura
 
 ```text
 ProyectoTecWeb/
-├─ contructor.yml          # Compose que construye la imagen desde el Dockerfile
-├─ despliegue.yml          # Compose que usa la imagen publicada en Docker Hub
-├─ .env.example
+├─ contructor.yml              # Compose que construye la imagen desde el Dockerfile
+├─ despliegue.yml              # Compose que usa la imagen publicada en Docker Hub
+├─ CONTRIBUTING.md             # Flujo de forks, ramas, commits, PR y revisión
+├─ .env.example                # Plantilla de variables; no contiene secretos
 ├─ .gitignore
 ├─ README.md
+├─ docs/
+│  ├─ autenticacion.md         # Configuración de Google, Discord y proveedores futuros
+│  └─ evidencias.pdf           # Evidencias de la entrega anterior
 ├─ scripts/
 │  └─ test-crud.ps1
 └─ ProyectoTecWeb/
@@ -39,35 +50,40 @@ ProyectoTecWeb/
    ├─ Program.cs
    ├─ Dockerfile
    ├─ .dockerignore
+   ├─ Auth/                    # Configuración de cookie y proveedores OAuth
    ├─ Controllers/
    ├─ Data/
+   │  ├─ AppDbContext.cs
+   │  └─ Configurations/
    ├─ DTOs/
    ├─ Models/
    ├─ Migrations/
-   └─ wwwroot/             # Juego (index.html, CSS y JS)
+   └─ wwwroot/                 # Juego (index.html, CSS y JS)
 ```
 
 ## Requisitos
 
 - Docker Desktop con Docker Compose.
 - Para desarrollo local: .NET 10 SDK.
-- Para generar migraciones: `dotnet tool install --global dotnet-ef --version 10.0.15`.
+- Para migraciones: `dotnet tool install --global dotnet-ef --version 10.0.15`.
 
-## Configuración
+## Configuración del entorno
 
-1. Copiar el archivo de ejemplo:
+1. Copiar la plantilla:
 
    ```powershell
    Copy-Item .env.example .env
    ```
 
-2. Editar `.env` y cambiar `POSTGRES_PASSWORD`. El archivo `.env` está ignorado por Git.
+2. Editar `.env` y cambiar como mínimo `POSTGRES_PASSWORD`.
+3. Completar las credenciales OAuth de los proveedores que se van a probar. La guía detallada está en [docs/autenticacion.md](docs/autenticacion.md).
 
 Variables principales:
 
 | Variable | Uso |
 |---|---|
 | `API_PORT` | Puerto publicado en el host para la API |
+| `APP_PUBLIC_URL` | URL pública usada para documentar los callbacks |
 | `DOCKERHUB_USER` | Usuario de Docker Hub |
 | `IMAGE_NAME` | Nombre de la imagen |
 | `IMAGE_TAG` | Etiqueta de la imagen |
@@ -75,12 +91,12 @@ Variables principales:
 | `POSTGRES_DB` | Nombre de la base |
 | `POSTGRES_USER` | Usuario de PostgreSQL |
 | `POSTGRES_PASSWORD` | Contraseña de PostgreSQL |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Credenciales de Google |
+| `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | Credenciales de Discord |
 
-La cadena de conexión se construye con esas variables y se inyecta como `ConnectionStrings__DefaultConnection`. No hay credenciales dentro de la imagen.
+Las credenciales se inyectan en tiempo de ejecución como `Authentication__Google__ClientId`, `Authentication__Google__ClientSecret`, etc. No se hornean en la imagen.
 
 ## Ejecutar con construcción desde el código
-
-Desde la raíz del proyecto:
 
 ```powershell
 docker compose --env-file .env -f contructor.yml up --build -d
@@ -106,9 +122,9 @@ Borrar también el volumen de PostgreSQL:
 docker compose --env-file .env -f contructor.yml down -v
 ```
 
-## Ejecutar el despliegue con la imagen publicada
+## Ejecutar con la imagen publicada
 
-Primero detener el stack de construcción si está corriendo, porque ambos usan el mismo puerto y los mismos nombres de contenedor:
+Primero detener el stack de construcción, porque ambos usan el mismo puerto y los mismos nombres de contenedor:
 
 ```powershell
 docker compose --env-file .env -f contructor.yml down
@@ -117,103 +133,144 @@ docker compose --env-file .env -f despliegue.yml up -d
 docker compose --env-file .env -f despliegue.yml ps
 ```
 
-Probar:
+`despliegue.yml` no tiene sección `build`: usa una imagen publicada en Docker Hub.
+
+> La etiqueta `1.0.0` corresponde a la entrega anterior. Cuando se integren las nuevas funcionalidades de login y soft delete se publicará una etiqueta nueva, por ejemplo `1.1.0`, y se actualizará `.env`.
+
+## Ejecutar en local sin Docker
+
+Tener PostgreSQL disponible y definir la cadena de conexión y las credenciales OAuth:
 
 ```powershell
-curl.exe http://localhost:8080/health
-curl.exe http://localhost:8080/api/leaderboard/bolivia?limit=10
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+$env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=5432;Database=proyectotecweb;Username=proyectotecweb;Password=tu-clave"
+$env:Authentication__Google__ClientId = "tu-client-id.apps.googleusercontent.com"
+$env:Authentication__Google__ClientSecret = "tu-client-secret"
+$env:Authentication__Discord__ClientId = "tu-discord-client-id"
+$env:Authentication__Discord__ClientSecret = "tu-discord-client-secret"
+
+dotnet run --project .\ProyectoTecWeb
 ```
 
-Este archivo no tiene sección `build`: usa directamente `nardolj/proyectowebtec:1.0.0` desde Docker Hub.
+También se puede usar `dotnet user-secrets`; los pasos están en [docs/autenticacion.md](docs/autenticacion.md).
 
-## Docker Hub
+## Autenticación
 
-- Repositorio: `https://hub.docker.com/r/nardolj/proyectowebtec`
-- Etiqueta exacta: `1.0.0`
-- También se publica `latest`.
-- Digest publicado (linux/amd64): `sha256:23a98086f805dbb3d5879cef9f9c8f03bb4628f12cc4bbabeef52361dac074c2` (105 MB comprimida).
-- Descarga:
+La aplicación usa **cookie de sesión + OAuth**. El flujo es:
 
-  ```powershell
-  docker pull nardolj/proyectowebtec:1.0.0
-  ```
+1. El usuario hace clic en `Continuar con Google` o `Continuar con Discord`.
+2. La API redirige al proveedor.
+3. El proveedor vuelve a `/signin-google` o `/signin-discord`.
+4. La API crea la cookie de sesión y redirige a `/`.
+5. El frontend consulta `/api/auth/me` y muestra la identidad.
 
-La imagen se construyó y se subió con:
+Endpoints de sesión:
 
-```powershell
-docker build -t nardolj/proyectowebtec:1.0.0 .\ProyectoTecWeb
-docker tag nardolj/proyectowebtec:1.0.0 nardolj/proyectowebtec:latest
-docker push nardolj/proyectowebtec:1.0.0
-docker push nardolj/proyectowebtec:latest
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/api/auth/providers` | Proveedores configurados |
+| `GET` | `/api/auth/me` | Identidad de la sesión; 401 sin sesión |
+| `POST` | `/logout` | Cierra la sesión |
+
+Callbacks locales:
+
+```text
+http://localhost:8080/signin-google
+http://localhost:8080/signin-discord
 ```
 
-## Git
+Los proveedores que no tengan credenciales configuradas no se registran y su botón no se muestra; la aplicación arranca igual.
 
-- Repositorio: `https://github.com/NardoLj/ProyectoWebTec`
+## Endpoints de Bolivia
 
-## Endpoints de Bolivia (Leonardo Julio)
+Todos los endpoints de las cuatro tablas requieren sesión. Sin cookie válida responden **401**.
+
+### Leaderboard
 
 Base: `/api/leaderboard/bolivia`
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| `POST` | `/api/leaderboard/bolivia` | Crea una puntuación |
-| `GET` | `/api/leaderboard/bolivia?limit=10` | Lista las mejores puntuaciones |
-| `GET` | `/api/leaderboard/bolivia/{id}` | Obtiene una puntuación por ID |
-| `PUT` | `/api/leaderboard/bolivia/{id}` | Actualiza una puntuación |
-| `DELETE` | `/api/leaderboard/bolivia/{id}` | Elimina una puntuación |
+| `GET` | `/api/leaderboard/bolivia?limit=10` | Lista los mejores puntajes |
+| `GET` | `/api/leaderboard/bolivia/{id}` | Obtiene un puntaje por ID |
+| `POST` | `/api/leaderboard/bolivia` | Crea un puntaje |
+| `PUT` | `/api/leaderboard/bolivia/{id}` | Actualiza un puntaje |
+| `DELETE` | `/api/leaderboard/bolivia/{id}` | Soft delete del puntaje |
 
-Ejemplo de creación:
+### Jugadores
 
-```powershell
-$json = '{"playerName":"Leonardo","score":25}'
-curl.exe -X POST http://localhost:8080/api/leaderboard/bolivia `
-  -H "Content-Type: application/json" `
-  -d $json
-```
+Base: `/api/bolivia/jugadores`
 
-También se puede usar `Invoke-RestMethod`:
-
-```powershell
-$body = @{ playerName = "Leonardo"; score = 25 } | ConvertTo-Json
-Invoke-RestMethod -Method Post `
-  -Uri http://localhost:8080/api/leaderboard/bolivia `
-  -ContentType "application/json" `
-  -Body $body
-```
-
-La tabla tiene las columnas:
-
-| Columna | Tipo | Regla |
+| Método | Ruta | Descripción |
 |---|---|---|
-| `id` | integer | PK, identity |
-| `player_name` | varchar(30) | obligatorio |
-| `score` | integer | obligatorio, `>= 0` |
-| `created_at` | timestamptz | por defecto `NOW()` |
+| `GET` | `/api/bolivia/jugadores` | Lista jugadores activos |
+| `GET` | `/api/bolivia/jugadores/{id}` | Obtiene un jugador activo |
+| `POST` | `/api/bolivia/jugadores` | Crea un jugador |
+| `PUT` | `/api/bolivia/jugadores/{id}` | Actualiza un jugador |
+| `DELETE` | `/api/bolivia/jugadores/{id}` | Soft delete del jugador |
 
-La migración se genera con:
+### Partidas
+
+Base: `/api/bolivia/partidas`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/api/bolivia/partidas` | Lista partidas activas |
+| `GET` | `/api/bolivia/partidas/{id}` | Obtiene una partida activa |
+| `POST` | `/api/bolivia/partidas` | Crea una partida |
+| `PUT` | `/api/bolivia/partidas/{id}` | Actualiza una partida |
+| `DELETE` | `/api/bolivia/partidas/{id}` | Soft delete de la partida |
+
+### Logros
+
+Base: `/api/bolivia/logros`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `GET` | `/api/bolivia/logros` | Lista logros activos |
+| `GET` | `/api/bolivia/logros/{id}` | Obtiene un logro activo |
+| `POST` | `/api/bolivia/logros` | Crea un logro |
+| `PUT` | `/api/bolivia/logros/{id}` | Actualiza un logro |
+| `DELETE` | `/api/bolivia/logros/{id}` | Soft delete del logro |
+
+## Soft delete
+
+Las cuatro tablas de cada integrante tienen las columnas:
+
+- `is_deleted` (`boolean`, por defecto `false`).
+- `deleted_at` (`timestamptz`, nulo mientras está activo).
+
+Reglas:
+
+- Los GET excluyen los registros con `is_deleted = true`.
+- `DELETE` no borra la fila: marca `is_deleted = true` y asigna `deleted_at`.
+- Un registro inactivo no se puede actualizar ni eliminar otra vez; la API responde 404.
+- La fila permanece físicamente en PostgreSQL y se puede comprobar con SQL.
+
+Ejemplo de verificación:
+
+```sql
+SELECT id, nombre, is_deleted, deleted_at
+FROM jugadores_bolivia
+ORDER BY id DESC;
+```
+
+## Migraciones
+
+La API ejecuta `Database.Migrate()` al arrancar. Para generar una migración:
 
 ```powershell
 cd ProyectoTecWeb
-dotnet ef migrations add InitialCreate
+dotnet ef migrations add NombreDeLaMigracion
 ```
 
-Al arrancar, la API ejecuta `Database.Migrate()` y crea la tabla si no existe.
+Reglas para evitar conflictos:
 
-## Contrato para integrar los otros servidores
+- Sincronizar `main` antes de generar la migración.
+- No editar a mano `AppDbContextModelSnapshot.cs` salvo que sea necesario.
+- Si hay conflicto en el snapshot, regenerar la migración sobre la versión más reciente.
 
-Para que el frontend funcione sin cambios, cada compañero debe mantener este contrato:
-
-- Tabla: `leaderboard_peru` y `leaderboard_argentina`.
-- Ruta: `/api/leaderboard/peru` y `/api/leaderboard/argentina`.
-- Campos JSON: `playerName`, `score`; respuesta con `id`, `playerName`, `score`, `createdAt`.
-- Endpoints: `POST`, `GET` lista, `GET /{id}`, `PUT /{id}`, `DELETE /{id}`.
-- Registrar la entidad en `AppDbContext` y crear su configuración en `Data/Configurations`.
-- Agregar su migración con `dotnet ef migrations add Add<Servidor>Leaderboard`.
-
-El selector del juego ya apunta a esas rutas; si el controlador no existe, muestra “Servidor aún no disponible” sin romper el juego.
-
-## Pruebas CRUD
+## Pruebas
 
 Con el stack levantado:
 
@@ -221,38 +278,60 @@ Con el stack levantado:
 powershell -ExecutionPolicy Bypass -File .\scripts\test-crud.ps1
 ```
 
-El script prueba `POST`, `GET` lista, `GET` por ID, `PUT`, `DELETE` y verifica el 404 después de borrar.
+El script de la entrega anterior prueba el CRUD de Bolivia. Las nuevas pruebas de login y soft delete se documentan en las evidencias de cada etapa.
 
-También se puede usar Swagger en `http://localhost:8080/swagger`.
+Pruebas mínimas:
 
-## Entregables
+1. `GET /api/leaderboard/bolivia` sin cookie → 401.
+2. Login con Google → `GET /api/auth/me` → 200.
+3. `POST` de leaderboard con sesión → 201.
+4. Login con Discord → `GET /api/auth/me` → 200.
+5. `DELETE` → 204; `GET` por ID → 404; fila conservada en PostgreSQL con `is_deleted = true`.
+6. Logout → `GET /api/auth/me` → 401.
 
-- Documento de evidencias: `docs/evidencias.pdf`.
-- ZIP del proyecto: `ProyectoTecWeb-LeonardoJulio.zip`, sin `.env`, `bin/` ni `obj/`.
+## Flujo de ramas y PRs
 
-## Uso de IA
+El detalle completo está en [CONTRIBUTING.md](CONTRIBUTING.md). Resumen:
 
-Se usó IA como apoyo para generar la estructura inicial del proyecto, el juego web y los archivos de despliegue. El código generado fue revisado, compilado y probado localmente antes de publicarlo.
+| Etapa | Rama | Contenido |
+|---|---|---|
+| 0 | `docs/equipo` | README, CONTRIBUTING y reparto |
+| 1 | `feat/<pais>-tablas` | Cuatro tablas + migración |
+| 2 | `feat/<pais>-auth` | Dos logins + botones + sesión |
+| 3 | `feat/<pais>-controllers` | POST/GET protegidos con `[Authorize]` |
+| 4 | `practice/<pais>-post-duplicado` | PR fallida, cerrada sin merge |
+| 5 | `feat/<pais>-put-softdelete` | Dos commits: PUT y soft delete; Squash and merge |
 
-Consulta principal para `despliegue.yml`:
+Nadie trabaja directamente en `main`. Los compañeros trabajan desde su fork y el líder revisa e integra. En las PR del líder, otro integrante deja la revisión y el líder hace la integración.
 
-> Generar un Compose de despliegue para una API .NET 10 publicada como `nardolj/proyectowebtec:1.0.0` y PostgreSQL 16, usando una red compartida, volumen nombrado, healthcheck y variables desde `.env`, sin compilar desde el código fuente.
+## Docker Hub
 
-Verificación realizada:
+- Repositorio: <https://hub.docker.com/r/nardolj/proyectowebtec>
+- Etiqueta de la entrega anterior: `1.0.0`.
+- También se publicó `latest`.
+- La nueva versión con autenticación se publicará después de integrar y probar las ramas.
 
-1. `dotnet build -c Release`: compilación correcta, 0 warnings y 0 errores.
-2. `docker compose --env-file .env -f despliegue.yml config`: sintaxis e interpolación válidas; no existe la clave `build`.
-3. `docker compose --env-file .env -f despliegue.yml pull`: descarga correcta de `nardolj/proyectowebtec:1.0.0` desde Docker Hub.
-4. `up -d` y `ps`: contenedores `proyectotecweb-api` y `proyectotecweb-db` en ejecución; PostgreSQL con healthcheck.
-5. `GET /health`, `GET /health/db` y `GET /api/leaderboard/bolivia`: respuestas HTTP 200.
-6. `scripts/test-crud.ps1`: `POST` 201, `GET` lista 200, `GET` por ID 200, `PUT` 204, `DELETE` 204 y `GET` posterior 404.
-7. Persistencia: después de `docker compose down` (sin `-v`) y volver a levantar el stack, los registros se conservaron en el volumen `proyectotecweb_pgdata`.
-8. Publicación: imagen subida a Docker Hub con etiquetas `1.0.0` y `latest`, digest `sha256:23a98086f805dbb3d5879cef9f9c8f03bb4628f12cc4bbabeef52361dac074c2`.
+## Evidencias y entregables
 
-Las capturas y el detalle de estas pruebas están en `docs/evidencias.pdf`.
+Cada integrante entrega su propio PDF o Word con:
+
+- Nombre, equipo y rol.
+- Cuatro tablas y dos proveedores.
+- Enlaces al repositorio base, su fork y sus PR.
+- Capturas de login, identidad, logout y endpoints.
+- Captura de la PR fallida y su rechazo.
+- Captura de los dos commits y del squash final.
+
+El ZIP final se genera desde la versión integrada de `main` y no debe incluir `.env`, `bin/` ni `obj/`.
 
 ## Seguridad
 
-- `.env` no se sube a Git y está excluido de la imagen por `.dockerignore`.
-- La cadena de conexión se pasa solo en tiempo de ejecución.
+- `.env` está ignorado por Git y no se incluye en la imagen.
+- Las credenciales OAuth se pasan solo en tiempo de ejecución.
 - No se guardan contraseñas en el Dockerfile ni en `appsettings.json`.
+- Las capturas y documentos deben ocultar secretos.
+- No agregar integrantes como colaboradores del repositorio base.
+
+## Uso de IA
+
+Se usó IA como apoyo para la estructura del proyecto, el juego, la configuración de Docker y la documentación. El código generado se revisa, compila y prueba antes de integrarse.
