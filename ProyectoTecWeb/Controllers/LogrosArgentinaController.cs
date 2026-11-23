@@ -82,4 +82,16 @@ public class LogrosArgentinaController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var logro = await _db.LogrosArgentina.FirstOrDefaultAsync(x => x.Id == id);
+        if (logro is null) return NotFound(new { message = "Logro no encontrado." });
+
+        logro.IsDeleted = true;
+        logro.DeletedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 }

@@ -14,6 +14,8 @@ public class PartidaArgentinaConfiguration : IEntityTypeConfiguration<PartidaArg
             table.HasCheckConstraint("ck_partidas_argentina_duracion", "duracion_segundos > 0");
         });
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false).IsRequired();
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at");
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.JugadorId).HasColumnName("jugador_id");
         builder.Property(x => x.Puntaje).HasColumnName("puntaje").IsRequired();

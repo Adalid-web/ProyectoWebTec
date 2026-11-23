@@ -84,4 +84,16 @@ public class JugadoresArgentinaController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var jugador = await _db.JugadoresArgentina.FirstOrDefaultAsync(x => x.Id == id);
+        if (jugador is null) return NotFound(new { message = "Jugador no encontrado." });
+
+        jugador.IsDeleted = true;
+        jugador.DeletedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 }

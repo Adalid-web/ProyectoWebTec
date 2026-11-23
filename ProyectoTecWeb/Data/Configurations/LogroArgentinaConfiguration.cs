@@ -10,6 +10,8 @@ public class LogroArgentinaConfiguration : IEntityTypeConfiguration<LogroArgenti
     {
         builder.ToTable("logros_argentina");
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false).IsRequired();
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at");
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.JugadorId).HasColumnName("jugador_id");
         builder.Property(x => x.Nombre).HasColumnName("nombre").HasMaxLength(80).IsRequired();

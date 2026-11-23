@@ -77,4 +77,16 @@ public class PartidasArgentinaController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var partida = await _db.PartidasArgentina.FirstOrDefaultAsync(x => x.Id == id);
+        if (partida is null) return NotFound(new { message = "Partida no encontrado." });
+
+        partida.IsDeleted = true;
+        partida.DeletedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 }

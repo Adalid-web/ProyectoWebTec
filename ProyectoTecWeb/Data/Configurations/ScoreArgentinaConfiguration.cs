@@ -11,6 +11,8 @@ public class ScoreArgentinaConfiguration : IEntityTypeConfiguration<ScoreArgenti
         builder.ToTable("leaderboard_argentina", table =>
             table.HasCheckConstraint("ck_leaderboard_argentina_score", "score >= 0 AND score <= 100000"));
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false).IsRequired();
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at");
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.PlayerName).HasColumnName("player_name").HasMaxLength(30).IsRequired();
         builder.Property(x => x.Score).HasColumnName("score").IsRequired();

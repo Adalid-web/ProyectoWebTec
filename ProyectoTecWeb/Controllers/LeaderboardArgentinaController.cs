@@ -69,6 +69,18 @@ public class LeaderboardArgentinaController : ControllerBase
         return NoContent();
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var score = await _db.ArgentinaScores.FirstOrDefaultAsync(x => x.Id == id);
+        if (score is null) return NotFound(new { message = "Puntaje no encontrado." });
+
+        score.IsDeleted = true;
+        score.DeletedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
     private static ScoreResponseDto ToResponse(ScoreArgentina s) => new()
     {
         Id = s.Id, PlayerName = s.PlayerName, Score = s.Score, CreatedAt = s.CreatedAt
