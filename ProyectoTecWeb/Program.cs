@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using ProyectoTecWeb.Auth;
 using ProyectoTecWeb.Data;
@@ -6,7 +7,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // El puerto se lee de una variable de entorno para que el contenedor sea configurable.
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var httpsCertPath = Environment.GetEnvironmentVariable("HTTPS_CERT_PATH");
+if (!string.IsNullOrWhiteSpace(httpsCertPath))
+{
+    var certPassword = Environment.GetEnvironmentVariable("HTTPS_CERT_PASSWORD")
+        ?? throw new InvalidOperationException("Falta HTTPS_CERT_PASSWORD.");
+    builder.WebHost.ConfigureKestrel(server =>
+    {
+        server.ListenAnyIP(int.Parse(port));
+        server.ListenAnyIP(8443, listen => listen.UseHttps(httpsCertPath, certPassword));
+    });
+}
+else
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+var keyDirectory = Environment.GetEnvironmentVariable("AUTH_KEYS_PATH");
+if (!string.IsNullOrWhiteSpace(keyDirectory))
+{
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keyDirectory));
+}
 
 // La cadena de conexión se inyecta en tiempo de ejecución; nunca se hornea en la imagen.
 var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
@@ -20,6 +41,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddAppAuthentication(builder.Configuration);
+builder.Services.AddArgentinaAuthProviders(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

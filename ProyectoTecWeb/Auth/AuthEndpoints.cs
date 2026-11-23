@@ -48,6 +48,12 @@ public static class AuthEndpoints
         endpoints.MapGet("/login/spotify", (IConfiguration configuration) =>
             ChallengeProvider(configuration, "Spotify"));
 
+        endpoints.MapGet("/login/twitch", (IConfiguration configuration) =>
+            ChallengeProvider(configuration, "Twitch"));
+
+        endpoints.MapGet("/login/slack", (IConfiguration configuration) =>
+            ChallengeProvider(configuration, "Slack"));
+
         endpoints.MapPost("/logout", async (HttpContext context) =>
         {
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
