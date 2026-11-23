@@ -8,7 +8,9 @@ public static class AuthProviderCatalog
     private static readonly AuthProviderInfo[] Providers =
     [
         new("google", "Google", "Google", "G"),
-        new("discord", "Discord", "Discord", "◈")
+        new("discord", "Discord", "Discord", "◈"),
+        new("dropbox", "Dropbox", "Dropbox", "❖"),
+        new("spotify", "Spotify", "Spotify", "♫")
     ];
 
     public static IReadOnlyList<AuthProviderInfo> GetConfigured(IConfiguration configuration) =>
