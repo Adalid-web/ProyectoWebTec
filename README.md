@@ -8,6 +8,7 @@ El proyecto también cumple la consigna de Web API: cada integrante tiene **cuat
 - Guía de contribución: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Guía de autenticación: [docs/autenticacion.md](docs/autenticacion.md)
 - Plantilla de evidencias: [docs/plantilla-evidencias.md](docs/plantilla-evidencias.md)
+- Descripciones de PR: [docs/descripciones-pr.md](docs/descripciones-pr.md)
 
 ## Integrantes, tablas y proveedores
 
