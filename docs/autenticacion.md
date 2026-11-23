@@ -16,6 +16,8 @@ Los proveedores no se repiten entre integrantes. Cada uno implementa uno de la l
 
 Las credenciales reales se guardan únicamente en `.env` (ignorado por Git) o en `dotnet user-secrets`. Nunca se suben al repositorio, al PDF ni al ZIP.
 
+> **No confundir credenciales de la aplicación con cuentas de usuario.** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `DISCORD_CLIENT_ID` y `DISCORD_CLIENT_SECRET` son credenciales de la aplicación OAuth. No son el correo, el usuario ni la contraseña de las cuentas de prueba. Las cuentas de prueba se usan únicamente en el navegador cuando Google o Discord muestran su pantalla de login; nunca se escriben en `.env`.
+
 ### Para Docker Compose
 
 Copiar `.env.example` a `.env` y completar:
@@ -68,25 +70,53 @@ La aplicación solo registra un proveedor si sus dos credenciales están present
 
 ## 3. Configurar Google
 
+> **Importante:** Google cambió la interfaz. La antigua **Pantalla de consentimiento OAuth** ahora se llama **Google Auth Platform**. Si no encuentras **Usuarios de prueba**, no busques en "Credenciales": están en **Audience** (Audiencia).
+
 1. Entrar a <https://console.cloud.google.com/>.
-2. Crear un proyecto, por ejemplo `ProyectoTecWeb`.
-3. Ir a **APIs y servicios → Pantalla de consentimiento OAuth**.
-4. Elegir **Externo**, completar nombre, correo de soporte y datos de contacto.
-5. En **Usuarios de prueba**, agregar el correo con el que se probará el login.
-6. Ir a **APIs y servicios → Credenciales → Crear credenciales → ID de cliente de OAuth**.
-7. Tipo de aplicación: **Aplicación web**.
-8. En **URIs de redirección autorizados**, agregar exactamente:
+2. Seleccionar el proyecto correcto o crear uno nuevo, por ejemplo `ProyectoTecWeb`.
+3. Abrir **Google Auth Platform**. Enlaces directos:
+   - Configuración general: <https://console.cloud.google.com/auth/overview>
+   - Audiencia y usuarios de prueba: <https://console.cloud.google.com/auth/audience>
+   - Clientes OAuth: <https://console.cloud.google.com/auth/clients>
+4. Si aparece **Get started** o **Configurar Google Auth Platform**, completar:
+   - App name: `ProyectoTecWeb`
+   - User support email: el correo del equipo
+   - Audience / User type: **External** (Externo)
+   - Contact email: el correo del equipo
+   - Aceptar la política y crear.
+5. En el menú izquierdo abrir **Audience** (Audiencia).
+6. Verificar que la **Publishing status** sea **Testing** y que el **User type** sea **External**.
+7. En la sección **Test users** (Usuarios de prueba), hacer clic en **Add users**.
+8. Agregar el correo de Gmail con el que se probará el login y guardar.
+9. Abrir **Clients** (Clientes) → **Create client** (Crear cliente).
+10. Tipo de aplicación: **Web application** (Aplicación web).
+11. En **Authorized JavaScript origins** agregar:
 
-   ```text
-   http://localhost:8080/signin-google
-   ```
+    ```text
+    http://localhost:8080
+    ```
 
-9. Guardar y copiar **Client ID** y **Client Secret** en `.env`.
-10. El correo usado para probar debe estar agregado como usuario de prueba mientras la app esté en modo Testing.
+12. En **Authorized redirect URIs** agregar exactamente:
+
+    ```text
+    http://localhost:8080/signin-google
+    ```
+
+13. Crear el cliente y copiar **Client ID** y **Client secret** en `.env`.
+
+### No aparece "Test users" o "Usuarios de prueba"
+
+Revisar en este orden:
+
+1. Estás en **Google Auth Platform → Audience**, no en **Credentials**.
+2. El proyecto seleccionado arriba es el correcto.
+3. La app está en modo **Testing**. Si está **In production**, la lista de usuarios de prueba puede no mostrarse; con los scopes básicos `openid`, `email` y `profile` normalmente se puede publicar sin revisión, pero para la entrega es más sencillo usar **Testing** y agregar usuarios.
+4. El **User type** es **External**. Si el proyecto pertenece a una organización de Google Workspace y solo permite **Internal**, crear el proyecto con una cuenta personal de Gmail o usar una cuenta con rol **Owner**.
+5. Si el menú **Google Auth Platform** no aparece, confirmar que la cuenta tiene rol **Owner** o **Editor** en el proyecto y recargar la consola.
 
 ### Errores frecuentes de Google
 
-- `redirect_uri_mismatch`: la URI no coincide exactamente. Debe ser `http://localhost:8080/signin-google`, sin barra final adicional.
+- `redirect_uri_mismatch`: la URI no coincide exactamente. Debe ser `http://localhost:8080/signin-google`, sin barra final adicional y usando `localhost`, no `127.0.0.1`.
 - `access_blocked`: la cuenta no está agregada como usuario de prueba.
 - `invalid_client`: Client ID o Secret incorrectos, o `.env` no fue cargado.
 - El correo no aparece: revisar el scope `email` y que la cuenta tenga correo verificado.

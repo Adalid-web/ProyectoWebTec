@@ -7,6 +7,8 @@ El proyecto también cumple la consigna de Web API: cada integrante tiene **cuat
 - Repositorio base: <https://github.com/NardoLj/ProyectoWebTec>
 - Guía de contribución: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Guía de autenticación: [docs/autenticacion.md](docs/autenticacion.md)
+- Plantilla de evidencias: [docs/plantilla-evidencias.md](docs/plantilla-evidencias.md)
+- Descripciones de PR: [docs/descripciones-pr.md](docs/descripciones-pr.md)
 
 ## Integrantes, tablas y proveedores
 
@@ -42,6 +44,7 @@ ProyectoTecWeb/
 ├─ README.md
 ├─ docs/
 │  ├─ autenticacion.md         # Configuración de Google, Discord y proveedores futuros
+│  ├─ plantilla-evidencias.md  # Guía para el PDF/Word individual
 │  └─ evidencias.pdf           # Evidencias de la entrega anterior
 ├─ scripts/
 │  └─ test-crud.ps1
@@ -272,13 +275,19 @@ Reglas para evitar conflictos:
 
 ## Pruebas
 
-Con el stack levantado:
+Con el stack levantado, el script puede comprobar primero el rechazo sin sesión:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\test-crud.ps1
 ```
 
-El script de la entrega anterior prueba el CRUD de Bolivia. Las nuevas pruebas de login y soft delete se documentan en las evidencias de cada etapa.
+Para probar el CRUD con sesión, iniciar sesión en el navegador, copiar la cookie `ProyectoTecWeb.Auth` desde DevTools y pasarla al script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\test-crud.ps1 -Cookie "ProyectoTecWeb.Auth=VALOR"
+```
+
+No pegar la cookie en capturas, README, PDF ni ZIP. El script comprueba POST, GET lista, GET por ID, PUT, DELETE lógico, 404 posterior y que un registro inactivo ya no se pueda actualizar ni eliminar.
 
 Pruebas mínimas:
 
@@ -323,6 +332,12 @@ Cada integrante entrega su propio PDF o Word con:
 - Captura de los dos commits y del squash final.
 
 El ZIP final se genera desde la versión integrada de `main` y no debe incluir `.env`, `bin/` ni `obj/`.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\crear-entrega.ps1
+```
+
+El script copia el proyecto a una carpeta temporal, excluye `.git`, `.env`, `bin`, `obj`, evidencias antiguas y archivos ZIP, y agrega un `LEEME.txt` con los pasos de ejecución.
 
 ## Seguridad
 
