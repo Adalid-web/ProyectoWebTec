@@ -62,4 +62,19 @@ public class PartidasArgentinaController : ControllerBase
             DuracionSegundos = p.DuracionSegundos, JugadoEn = p.JugadoEn
         });
     }
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] PartidaArgentinaRequestDto dto)
+    {
+        var partida = await _db.PartidasArgentina.FirstOrDefaultAsync(p => p.Id == id);
+        if (partida is null) return NotFound(new { message = "Partida no encontrada." });
+        if (!await _db.JugadoresArgentina.AnyAsync(j => j.Id == dto.JugadorId))
+            return NotFound(new { message = "El jugador indicado no existe." });
+
+        partida.JugadorId = dto.JugadorId;
+        partida.Puntaje = dto.Puntaje;
+        partida.DuracionSegundos = dto.DuracionSegundos;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 }

@@ -66,4 +66,22 @@ public class JugadoresArgentinaController : ControllerBase
             FechaRegistro = j.FechaRegistro
         });
     }
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] JugadorArgentinaRequestDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Alias))
+            return BadRequest(new { message = "El nombre y el alias son obligatorios." });
+        var jugador = await _db.JugadoresArgentina.FirstOrDefaultAsync(j => j.Id == id);
+        if (jugador is null) return NotFound(new { message = "Jugador no encontrado." });
+
+        var alias = dto.Alias.Trim();
+        if (await _db.JugadoresArgentina.AnyAsync(j => j.Id != id && j.Alias == alias))
+            return Conflict(new { message = "El alias ya existe." });
+
+        jugador.Nombre = dto.Nombre.Trim();
+        jugador.Alias = alias;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 }

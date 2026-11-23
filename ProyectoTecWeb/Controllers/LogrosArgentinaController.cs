@@ -65,4 +65,21 @@ public class LogrosArgentinaController : ControllerBase
             Descripcion = l.Descripcion, FechaOtorgado = l.FechaOtorgado
         });
     }
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] LogroArgentinaRequestDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Nombre))
+            return BadRequest(new { message = "El nombre del logro es obligatorio." });
+        var logro = await _db.LogrosArgentina.FirstOrDefaultAsync(l => l.Id == id);
+        if (logro is null) return NotFound(new { message = "Logro no encontrado." });
+        if (!await _db.JugadoresArgentina.AnyAsync(j => j.Id == dto.JugadorId))
+            return NotFound(new { message = "El jugador indicado no existe." });
+
+        logro.JugadorId = dto.JugadorId;
+        logro.Nombre = dto.Nombre.Trim();
+        logro.Descripcion = string.IsNullOrWhiteSpace(dto.Descripcion) ? null : dto.Descripcion.Trim();
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
 }
