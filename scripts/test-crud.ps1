@@ -1,11 +1,31 @@
 ﻿param(
     [string]$BaseUrl = "http://localhost:8080",
-    [string]$Server = "bolivia"
+    [string]$Server = "bolivia",
+    [string]$Cookie = ""
 )
+
+# Prueba el leaderboard de un servidor.
+#
+# Sin -Cookie: verifica que la API responda 401 sin sesion (proteccion de endpoints).
+# Con -Cookie: prueba POST, GET lista, GET por ID, PUT, DELETE logico y 404 posterior.
+#
+# Como obtener la cookie:
+#   1. Iniciar sesion en http://localhost:8080/ con Google o Discord.
+#   2. Abrir DevTools (F12) -> Application/Storage -> Cookies -> http://localhost:8080.
+#   3. Copiar el valor de la cookie "ProyectoTecWeb.Auth".
+#   4. Ejecutar:
+#      .\scripts\test-crud.ps1 -Cookie "ProyectoTecWeb.Auth=VALOR"
+#
+# No pegar la cookie en capturas ni en el repositorio.
 
 $ErrorActionPreference = "Stop"
 $endpoint = "$BaseUrl/api/leaderboard/$Server"
 $failures = 0
+$headers = @{}
+
+if (-not [string]::IsNullOrWhiteSpace($Cookie)) {
+    $headers.Cookie = $Cookie
+}
 
 function Invoke-Api {
     param(
@@ -19,6 +39,7 @@ function Invoke-Api {
             Uri = $Url
             Method = $Method
             UseBasicParsing = $true
+            Headers = $headers
         }
 
         if ($Body) {
@@ -66,7 +87,7 @@ function Check {
 }
 
 Write-Host ""
-Write-Host "Probando CRUD de $Server en $BaseUrl" -ForegroundColor Cyan
+Write-Host "Probando leaderboard de $Server en $BaseUrl" -ForegroundColor Cyan
 Write-Host "------------------------------------------------"
 
 $health = Invoke-Api -Method Get -Url "$BaseUrl/health"
@@ -74,6 +95,32 @@ if (-not (Check -Name "GET /health" -Expected 200 -Actual $health.Status)) { $fa
 
 $dbHealth = Invoke-Api -Method Get -Url "$BaseUrl/health/db"
 if (-not (Check -Name "GET /health/db" -Expected 200 -Actual $dbHealth.Status)) { $failures++ }
+
+if ([string]::IsNullOrWhiteSpace($Cookie)) {
+    Write-Host ""
+    Write-Host "No se recibio -Cookie: se verificara el rechazo sin sesion." -ForegroundColor Yellow
+    $unauthorized = Invoke-Api -Method Get -Url "$endpoint`?limit=1"
+    if (-not (Check -Name "GET sin sesion" -Expected 401 -Actual $unauthorized.Status)) { $failures++ }
+
+    Write-Host ""
+    Write-Host "Para probar el CRUD, pasa la cookie de sesion con -Cookie." -ForegroundColor Yellow
+    Write-Host "Instrucciones en el encabezado de este script." -ForegroundColor DarkGray
+
+    Write-Host "------------------------------------------------"
+    if ($failures -eq 0) {
+        Write-Host "Proteccion sin sesion de ${Server}: OK" -ForegroundColor Green
+        exit 0
+    }
+
+    Write-Host "Proteccion sin sesion de ${Server}: $failures fallo(s)" -ForegroundColor Red
+    exit 1
+}
+
+$authorized = Invoke-Api -Method Get -Url "$endpoint`?limit=1"
+if (-not (Check -Name "GET con sesion" -Expected 200 -Actual $authorized.Status)) {
+    Write-Host "La cookie no es valida o expiro. Inicia sesion de nuevo." -ForegroundColor Red
+    exit 1
+}
 
 $name = "Test-" + (Get-Date -Format "HHmmss")
 $createBody = @{ playerName = $name; score = 17 } | ConvertTo-Json -Compress
@@ -108,12 +155,19 @@ $updatedData = $byIdUpdated.Content | ConvertFrom-Json
 if (-not (Check -Name "GET refleja el puntaje actualizado" -Expected 23 -Actual ([int]$updatedData.score))) { $failures++ }
 
 $deleted = Invoke-Api -Method Delete -Url "$endpoint/$id"
-if (-not (Check -Name "DELETE eliminar" -Expected 204 -Actual $deleted.Status)) { $failures++ }
+if (-not (Check -Name "DELETE soft delete" -Expected 204 -Actual $deleted.Status)) { $failures++ }
 
 $missing = Invoke-Api -Method Get -Url "$endpoint/$id"
 if (-not (Check -Name "GET posterior a DELETE" -Expected 404 -Actual $missing.Status)) { $failures++ }
 
+$updateDeleted = Invoke-Api -Method Put -Url "$endpoint/$id" -Body $updateBody
+if (-not (Check -Name "PUT sobre eliminado" -Expected 404 -Actual $updateDeleted.Status)) { $failures++ }
+
+$deleteAgain = Invoke-Api -Method Delete -Url "$endpoint/$id"
+if (-not (Check -Name "DELETE sobre eliminado" -Expected 404 -Actual $deleteAgain.Status)) { $failures++ }
+
 Write-Host "------------------------------------------------"
+Write-Host "Recuerda comprobar en PostgreSQL que la fila sigue existiendo con is_deleted = true." -ForegroundColor DarkGray
 if ($failures -eq 0) {
     Write-Host "CRUD de ${Server}: OK" -ForegroundColor Green
     exit 0
