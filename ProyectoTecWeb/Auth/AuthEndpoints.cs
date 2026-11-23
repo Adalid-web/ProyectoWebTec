@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using ProyectoTecWeb.Auth;
 
 namespace ProyectoTecWeb.Auth;
 
@@ -42,6 +41,12 @@ public static class AuthEndpoints
 
         endpoints.MapGet("/login/discord", (IConfiguration configuration) =>
             ChallengeProvider(configuration, "Discord"));
+
+        endpoints.MapGet("/login/dropbox", (IConfiguration configuration) =>
+            ChallengeProvider(configuration, "Dropbox"));
+
+        endpoints.MapGet("/login/spotify", (IConfiguration configuration) =>
+            ChallengeProvider(configuration, "Spotify"));
 
         endpoints.MapPost("/logout", async (HttpContext context) =>
         {

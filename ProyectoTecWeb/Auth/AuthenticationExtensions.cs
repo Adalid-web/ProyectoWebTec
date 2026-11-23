@@ -1,7 +1,8 @@
 using System.Security.Claims;
+using AspNet.Security.OAuth.Dropbox;
+using AspNet.Security.OAuth.Spotify;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 
 namespace ProyectoTecWeb.Auth;
@@ -90,6 +91,37 @@ public static class AuthenticationExtensions
                 options.Scope.Add("email");
                 options.Events.OnCreatingTicket = context =>
                     AddProviderClaim(context, "Discord");
+            });
+        }
+
+        var dropboxCredentials = AuthProviderCatalog.GetCredentials(configuration, "Dropbox");
+        if (dropboxCredentials is not null)
+        {
+            authentication.AddDropbox(options =>
+            {
+                options.ClientId = dropboxCredentials.ClientId;
+                options.ClientSecret = dropboxCredentials.ClientSecret;
+                options.CallbackPath = "/signin-dropbox";
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.SaveTokens = false;
+                options.Events.OnCreatingTicket = context =>
+                    AddProviderClaim(context, "Dropbox");
+            });
+        }
+
+        var spotifyCredentials = AuthProviderCatalog.GetCredentials(configuration, "Spotify");
+        if (spotifyCredentials is not null)
+        {
+            authentication.AddSpotify(options =>
+            {
+                options.ClientId = spotifyCredentials.ClientId;
+                options.ClientSecret = spotifyCredentials.ClientSecret;
+                options.CallbackPath = "/signin-spotify";
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.SaveTokens = false;
+                options.Scope.Add("user-read-email");
+                options.Events.OnCreatingTicket = context =>
+                    AddProviderClaim(context, "Spotify");
             });
         }
 
