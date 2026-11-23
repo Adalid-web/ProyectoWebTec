@@ -9,6 +9,8 @@ public static class AuthProviderCatalog
     [
         new("google", "Google", "Google", "G"),
         new("discord", "Discord", "Discord", "◈"),
+        new("dropbox", "Dropbox", "Dropbox", "❖"),
+        new("spotify", "Spotify", "Spotify", "♫"),
         new("twitch", "Twitch", "Twitch", "T"),
         new("slack", "Slack", "Slack", "S")
     ];
