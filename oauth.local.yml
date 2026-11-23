@@ -1,0 +1,14 @@
+# Superposición local: HTTPS para Twitch y Slack, sin cambiar el HTTP actual.
+services:
+  api:
+    # El contenedor usa el UID/GID local para leer el PFX privado y guardar las cookies.
+    user: "${HOST_UID:?Añade HOST_UID a .env}:${HOST_GID:?Añade HOST_GID a .env}"
+    ports:
+      - "127.0.0.1:${HTTPS_PORT:-8443}:8443"
+    environment:
+      HTTPS_CERT_PATH: /https/localhost.pfx
+      HTTPS_CERT_PASSWORD: "${HTTPS_CERT_PASSWORD:?Configura HTTPS_CERT_PASSWORD en tu .env privado}"
+      AUTH_KEYS_PATH: /auth-keys
+    volumes:
+      - ./.https:/https:ro
+      - ./.auth-keys:/auth-keys

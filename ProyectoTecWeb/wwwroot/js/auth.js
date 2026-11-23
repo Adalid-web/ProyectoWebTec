@@ -46,7 +46,7 @@
         if (state.providers.length === 0) {
             const message = document.createElement("span");
             message.className = "auth-empty";
-            message.textContent = "Configura Google o Discord en el .env";
+            message.textContent = "Configura un proveedor disponible en el .env";
             ui.providerButtons.appendChild(message);
             return;
         }

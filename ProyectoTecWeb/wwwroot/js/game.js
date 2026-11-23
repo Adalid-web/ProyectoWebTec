@@ -171,7 +171,7 @@
         if (state.running) return;
 
         if (!isAuthenticated()) {
-            showSaveMessage("Inicia sesión con Google o Discord para jugar y guardar.", true);
+            showSaveMessage("Inicia sesión con un proveedor disponible para jugar y guardar.", true);
             ui.statusText.textContent = "La sesión es obligatoria para usar la API.";
             return;
         }
@@ -226,7 +226,7 @@
         if (state.saved) return;
 
         if (!isAuthenticated()) {
-            showSaveMessage("Inicia sesión con Google o Discord antes de guardar.", true);
+            showSaveMessage("Inicia sesión con un proveedor disponible antes de guardar.", true);
             return;
         }
 
@@ -295,7 +295,7 @@
     async function loadLeaderboard() {
         if (!isAuthenticated()) {
             ui.leaderboardList.replaceChildren();
-            ui.leaderboardStatus.textContent = "Inicia sesión con Google o Discord para ver el leaderboard.";
+            ui.leaderboardStatus.textContent = "Inicia sesión con un proveedor disponible para ver el leaderboard.";
             ui.leaderboardStatus.className = "message";
             return;
         }
@@ -391,11 +391,11 @@
             ui.startButton.disabled = true;
             ui.saveButton.disabled = true;
             ui.startHint.textContent =
-                "Inicia sesión con Google o Discord para jugar. La API protege los endpoints.";
+                "Inicia sesión con un proveedor disponible para jugar. La API protege los endpoints.";
             ui.statusText.textContent = "Inicia sesión para jugar y guardar.";
             ui.leaderboardList.replaceChildren();
             ui.leaderboardStatus.textContent =
-                "Inicia sesión con Google o Discord para ver el leaderboard.";
+                "Inicia sesión con un proveedor disponible para ver el leaderboard.";
             ui.leaderboardStatus.className = "message";
             return;
         }

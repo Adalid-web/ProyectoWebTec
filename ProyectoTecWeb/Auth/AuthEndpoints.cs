@@ -43,6 +43,12 @@ public static class AuthEndpoints
         endpoints.MapGet("/login/discord", (IConfiguration configuration) =>
             ChallengeProvider(configuration, "Discord"));
 
+        endpoints.MapGet("/login/twitch", (IConfiguration configuration) =>
+            ChallengeProvider(configuration, "Twitch"));
+
+        endpoints.MapGet("/login/slack", (IConfiguration configuration) =>
+            ChallengeProvider(configuration, "Slack"));
+
         endpoints.MapPost("/logout", async (HttpContext context) =>
         {
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

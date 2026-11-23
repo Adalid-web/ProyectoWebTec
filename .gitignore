@@ -1,6 +1,8 @@
 # Entorno y secretos
 .env
 .env.local
+.https/
+.auth-keys/
 
 # .NET
 bin/
