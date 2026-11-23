@@ -43,6 +43,14 @@ public class JugadoresArgentinaController : ControllerBase
         return Ok(j);
     }
 
+    // ERROR INTENCIONAL PARA LA TAREA 6 - PUNTO 4.
+    // Este POST duplica la ruta de Create.
+    [HttpPost]
+    public IActionResult CrearDuplicadoParaRevision()
+    {
+        return Conflict(new { message = "POST duplicado intencional." });
+    }
+
     [HttpPost]
     public async Task<ActionResult<JugadorArgentinaResponseDto>> Create([FromBody] JugadorArgentinaRequestDto dto)
     {
