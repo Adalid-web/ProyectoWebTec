@@ -1,352 +1,617 @@
-# ProyectoTecWeb · Circle Rush
+# ProyectoTecWeb — Circle Rush
 
-Juego web de 30 segundos: aparecen círculos en pantalla y hay que hacer clic en la mayor cantidad posible. Al final se guarda el puntaje en PostgreSQL y se muestra un leaderboard por país.
+## Descripción del proyecto
 
-El proyecto también cumple la consigna de Web API: cada integrante tiene **cuatro tablas**, **dos proveedores de login** y controladores con operaciones protegidas por sesión.
+Circle Rush es un juego web de 30 segundos en el que aparecen círculos en pantalla y el jugador debe hacer clic en la mayor cantidad posible para conseguir puntos.
 
-- Repositorio base: <https://github.com/NardoLj/ProyectoWebTec>
-- Guía de contribución: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Guía de autenticación: [docs/autenticacion.md](docs/autenticacion.md)
-- Plantilla de evidencias: [docs/plantilla-evidencias.md](docs/plantilla-evidencias.md)
-- Descripciones de PR: [docs/descripciones-pr.md](docs/descripciones-pr.md)
+Los resultados se almacenan en PostgreSQL y pueden consultarse mediante tablas de clasificación por país.
 
-## Integrantes, tablas y proveedores
+El proyecto está desarrollado con ASP.NET Core .NET 10, Entity Framework Core, PostgreSQL, Docker y autenticación mediante proveedores externos.
 
-| Integrante | País | Cuatro tablas | Login fácil | Login medio | Estado |
-|---|---|---|---|---|---|
-| **Leonardo Julio** (líder) | Bolivia 🇧🇴 | `leaderboard_bolivia`, `jugadores_bolivia`, `partidas_bolivia`, `logros_bolivia` | Discord | Google | Integrado |
-| **Jheferson Velasco** | Perú 🇵🇪 | `leaderboard_peru`, `jugadores_peru`, `partidas_peru`, `logros_peru` | Twitch | Microsoft | Pendiente |
-| **Adalid Calizaya** | Argentina 🇦🇷 | `leaderboard_argentina`, `jugadores_argentina`, `partidas_argentina`, `logros_argentina` | Dropbox | Slack | Tablas integradas; resto pendiente |
+Para la Tarea 6, cada integrante implementó cuatro tablas, dos métodos de inicio de sesión y diferentes operaciones protegidas de la API.
 
-El reparto está registrado antes de programar y no se repite ningún proveedor entre integrantes.
+**Repositorio principal:** https://github.com/NardoLj/ProyectoWebTec
 
-> Las PR #2 a #5 y #8 integraron la documentación, las tablas, la autenticación, los controladores y las evidencias de Bolivia. La PR #6 se cerró sin merge como práctica de conflicto de rutas. La PR #7 se integró con **Squash and merge**. Adalid ya integró sus cuatro tablas de Argentina mediante la PR #1; las demás etapas de Perú y Argentina se trabajan en sus forks.
+## 1. Integrantes y distribución de proveedores
 
-## Stack
+| Integrante | País | Login fácil | Login medio | Estado |
+|---|---|---|---|---|
+| Leonardo Julio (líder) | Bolivia 🇧🇴 | Discord | Google | Integrado |
+| Jheferson Velasco | Perú 🇵🇪 | Dropbox | Spotify | Tablas y autenticación integradas |
+| Adalid Callizaya | Argentina 🇦🇷 | Twitch | Slack | Completado e integrado |
 
-- .NET 10 Web API con controladores.
-- Entity Framework Core 10 + Npgsql.
-- PostgreSQL 16.
-- Cookie de sesión + OAuth con Google y Discord (los compañeros agregan sus proveedores).
-- HTML, CSS y JavaScript sin frameworks para el juego.
-- Docker + Docker Compose.
-- Swagger para documentar y probar la API.
+Cada integrante tiene dos proveedores diferentes y ninguno se repite entre los miembros del equipo.
 
-## Estructura
+### Tablas asignadas
 
-```text
-ProyectoTecWeb/
-├─ contructor.yml              # Compose que construye la imagen desde el Dockerfile
-├─ despliegue.yml              # Compose que usa la imagen publicada en Docker Hub
-├─ CONTRIBUTING.md             # Flujo de forks, ramas, commits, PR y revisión
-├─ .env.example                # Plantilla de variables; no contiene secretos
-├─ .gitignore
-├─ README.md
-├─ docs/
-│  ├─ autenticacion.md         # Configuración de Google, Discord y proveedores futuros
-│  ├─ plantilla-evidencias.md  # Guía para el PDF/Word individual
-│  └─ evidencias.pdf           # Evidencias de la entrega anterior
-├─ scripts/
-│  └─ test-crud.ps1
-└─ ProyectoTecWeb/
-   ├─ ProyectoTecWeb.csproj
-   ├─ Program.cs
-   ├─ Dockerfile
-   ├─ .dockerignore
-   ├─ Auth/                    # Configuración de cookie y proveedores OAuth
-   ├─ Controllers/
-   ├─ Data/
-   │  ├─ AppDbContext.cs
-   │  └─ Configurations/
-   ├─ DTOs/
-   ├─ Models/
-   ├─ Migrations/
-   └─ wwwroot/                 # Juego (index.html, CSS y JS)
-```
+**Bolivia — Leonardo Julio**
 
-## Requisitos
+- `leaderboard_bolivia`
+- `jugadores_bolivia`
+- `partidas_bolivia`
+- `logros_bolivia`
 
-- Docker Desktop con Docker Compose.
-- Para desarrollo local: .NET 10 SDK.
-- Para migraciones: `dotnet tool install --global dotnet-ef --version 10.0.15`.
+**Perú — Jheferson Velasco**
 
-## Configuración del entorno
+- `leaderboard_peru`
+- `jugadores_peru`
+- `partidas_peru`
+- `logros_peru`
 
-1. Copiar la plantilla:
+**Argentina — Adalid Calizaya**
 
-   ```powershell
-   Copy-Item .env.example .env
-   ```
+- `leaderboard_argentina`
+- `jugadores_argentina`
+- `partidas_argentina`
+- `logros_argentina`
 
-2. Editar `.env` y cambiar como mínimo `POSTGRES_PASSWORD`.
-3. Completar las credenciales OAuth de los proveedores que se van a probar. La guía detallada está en [docs/autenticacion.md](docs/autenticacion.md).
+Las cuatro tablas de Argentina están integradas, junto con sus controladores y operaciones CRUD.
 
-Variables principales:
+Las tablas y los proveedores de Perú también están integrados. Sin embargo, la versión revisada del proyecto no contiene controladores específicos de Perú.
 
-| Variable | Uso |
+## 2. Tecnologías utilizadas
+
+| Tecnología | Función |
 |---|---|
-| `API_PORT` | Puerto publicado en el host para la API |
-| `APP_PUBLIC_URL` | URL pública usada para documentar los callbacks |
-| `DOCKERHUB_USER` | Usuario de Docker Hub |
-| `IMAGE_NAME` | Nombre de la imagen |
-| `IMAGE_TAG` | Etiqueta de la imagen |
-| `POSTGRES_HOST` | Host de PostgreSQL; dentro de Compose es `postgres` |
-| `POSTGRES_DB` | Nombre de la base |
-| `POSTGRES_USER` | Usuario de PostgreSQL |
-| `POSTGRES_PASSWORD` | Contraseña de PostgreSQL |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Credenciales de Google |
-| `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | Credenciales de Discord |
+| C# | Programación del backend |
+| ASP.NET Core .NET 10 | Desarrollo de la Web API |
+| Entity Framework Core | Acceso y operaciones sobre la base de datos |
+| PostgreSQL 16 | Almacenamiento de información |
+| Docker | Ejecución mediante contenedores |
+| Docker Compose | Configuración de servicios |
+| Swagger | Pruebas de los endpoints |
+| Git y GitHub | Control de versiones y Pull Requests |
+| HTML, CSS y JavaScript | Interfaz del juego Circle Rush |
+| OAuth / OpenID Connect | Autenticación con proveedores externos |
 
-Las credenciales se inyectan en tiempo de ejecución como `Authentication__Google__ClientId`, `Authentication__Google__ClientSecret`, etc. No se hornean en la imagen.
+## 3. Métodos de inicio de sesión
 
-## Ejecutar con construcción desde el código
+Se implementaron seis proveedores de autenticación, distribuidos entre los tres integrantes.
 
-```powershell
-docker compose --env-file .env -f contructor.yml up --build -d
-docker compose --env-file .env -f contructor.yml ps
-```
+| País | Proveedor | Categoría | Ruta de inicio |
+|---|---|---|---|
+| Bolivia | Discord | Fácil | `/login/discord` |
+| Bolivia | Google | Medio | `/login/google` |
+| Perú | Dropbox | Fácil | `/login/dropbox` |
+| Perú | Spotify | Medio | `/login/spotify` |
+| Argentina | Twitch | Fácil | `/login/twitch` |
+| Argentina | Slack | Medio | `/login/slack` |
 
-Abrir:
+### Funcionamiento de la autenticación
 
-- Juego: `http://localhost:8080/`
-- Swagger: `http://localhost:8080/swagger`
-- Health: `http://localhost:8080/health`
-- Health de base de datos: `http://localhost:8080/health/db`
+El usuario selecciona un botón de inicio de sesión y la aplicación lo redirige al proveedor correspondiente.
 
-Detener sin borrar datos:
+Después de iniciar sesión y autorizar el acceso, el proveedor devuelve al usuario a la aplicación.
 
-```powershell
-docker compose --env-file .env -f contructor.yml down
-```
+La API valida la autenticación y crea una cookie de sesión.
 
-Borrar también el volumen de PostgreSQL:
+Finalmente, la aplicación muestra los datos de identidad del usuario autenticado.
 
-```powershell
-docker compose --env-file .env -f contructor.yml down -v
-```
+También permite cerrar la sesión.
 
-## Ejecutar con la imagen publicada
+### Endpoints de autenticación
 
-Primero detener el stack de construcción, porque ambos usan el mismo puerto y los mismos nombres de contenedor:
-
-```powershell
-docker compose --env-file .env -f contructor.yml down
-docker compose --env-file .env -f despliegue.yml pull
-docker compose --env-file .env -f despliegue.yml up -d
-docker compose --env-file .env -f despliegue.yml ps
-```
-
-`despliegue.yml` no tiene sección `build`: usa una imagen publicada en Docker Hub.
-
-> La etiqueta `1.0.0` corresponde a la entrega anterior. Cuando se integren las nuevas funcionalidades de login y soft delete se publicará una etiqueta nueva, por ejemplo `1.1.0`, y se actualizará `.env`.
-
-## Ejecutar en local sin Docker
-
-Tener PostgreSQL disponible y definir la cadena de conexión y las credenciales OAuth:
-
-```powershell
-$env:ASPNETCORE_ENVIRONMENT = "Development"
-$env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=5432;Database=proyectotecweb;Username=proyectotecweb;Password=tu-clave"
-$env:Authentication__Google__ClientId = "tu-client-id.apps.googleusercontent.com"
-$env:Authentication__Google__ClientSecret = "tu-client-secret"
-$env:Authentication__Discord__ClientId = "tu-discord-client-id"
-$env:Authentication__Discord__ClientSecret = "tu-discord-client-secret"
-
-dotnet run --project .\ProyectoTecWeb
-```
-
-También se puede usar `dotnet user-secrets`; los pasos están en [docs/autenticacion.md](docs/autenticacion.md).
-
-## Autenticación
-
-La aplicación usa **cookie de sesión + OAuth**. El flujo es:
-
-1. El usuario hace clic en `Continuar con Google` o `Continuar con Discord`.
-2. La API redirige al proveedor.
-3. El proveedor vuelve a `/signin-google` o `/signin-discord`.
-4. La API crea la cookie de sesión y redirige a `/`.
-5. El frontend consulta `/api/auth/me` y muestra la identidad.
-
-Endpoints de sesión:
-
-| Método | Ruta | Descripción |
+| Método | Endpoint | Descripción |
 |---|---|---|
-| `GET` | `/api/auth/providers` | Proveedores configurados |
-| `GET` | `/api/auth/me` | Identidad de la sesión; 401 sin sesión |
-| `POST` | `/logout` | Cierra la sesión |
+| GET | `/api/auth/providers` | Muestra los proveedores configurados |
+| GET | `/api/auth/me` | Consulta la identidad del usuario autenticado |
+| POST | `/logout` | Cierra la sesión |
 
-Callbacks locales:
+Sin una sesión válida, los endpoints protegidos devuelven HTTP 401.
+
+### URLs de retorno
+
+| Proveedor | Callback |
+|---|---|
+| Discord | `/signin-discord` |
+| Google | `/signin-google` |
+| Dropbox | `/signin-dropbox` |
+| Spotify | `/signin-spotify` |
+| Twitch | `/signin-twitch` |
+| Slack | `/signin-slack` |
+
+Las URLs deben registrarse correctamente en los portales de cada proveedor.
+
+Para las pruebas locales de Argentina se utilizaron:
 
 ```text
-http://localhost:8080/signin-google
-http://localhost:8080/signin-discord
+https://localhost:8443/signin-twitch
+https://localhost:8443/signin-slack
 ```
 
-Los proveedores que no tengan credenciales configuradas no se registran y su botón no se muestra; la aplicación arranca igual.
+## 4. Implementación de Argentina
 
-## Endpoints de Bolivia
+**Responsable:** Adalid Calizaya.
 
-Todos los endpoints de las cuatro tablas requieren sesión. Sin cookie válida responden **401**.
+**País asignado:** Argentina.
 
-### Leaderboard
+**Proveedores implementados:** Twitch y Slack.
 
-Base: `/api/leaderboard/bolivia`
+**Repositorio personal:** https://github.com/Adalid-web/ProyectoWebTec
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/leaderboard/bolivia?limit=10` | Lista los mejores puntajes |
-| `GET` | `/api/leaderboard/bolivia/{id}` | Obtiene un puntaje por ID |
-| `POST` | `/api/leaderboard/bolivia` | Crea un puntaje |
-| `PUT` | `/api/leaderboard/bolivia/{id}` | Actualiza un puntaje |
-| `DELETE` | `/api/leaderboard/bolivia/{id}` | Soft delete del puntaje |
+### 4.1. Cuatro tablas de Argentina
 
-### Jugadores
+Se implementaron cuatro tablas relacionadas con jugadores, partidas, logros y clasificación.
 
-Base: `/api/bolivia/jugadores`
+Las tablas se administran mediante Entity Framework Core y PostgreSQL.
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/bolivia/jugadores` | Lista jugadores activos |
-| `GET` | `/api/bolivia/jugadores/{id}` | Obtiene un jugador activo |
-| `POST` | `/api/bolivia/jugadores` | Crea un jugador |
-| `PUT` | `/api/bolivia/jugadores/{id}` | Actualiza un jugador |
-| `DELETE` | `/api/bolivia/jugadores/{id}` | Soft delete del jugador |
+### 4.2. Autenticación Twitch y Slack
 
-### Partidas
+Se implementaron dos botones funcionales de inicio de sesión:
 
-Base: `/api/bolivia/partidas`
+- Continuar con Twitch.
+- Continuar con Slack.
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/bolivia/partidas` | Lista partidas activas |
-| `GET` | `/api/bolivia/partidas/{id}` | Obtiene una partida activa |
-| `POST` | `/api/bolivia/partidas` | Crea una partida |
-| `PUT` | `/api/bolivia/partidas/{id}` | Actualiza una partida |
-| `DELETE` | `/api/bolivia/partidas/{id}` | Soft delete de la partida |
+Los dos proveedores permiten iniciar sesión, regresar a Circle Rush, mostrar la identidad del usuario y cerrar sesión.
 
-### Logros
+Las credenciales se configuran mediante variables de entorno y no se almacenan directamente en el código.
 
-Base: `/api/bolivia/logros`
+### 4.3. Controladores protegidos
 
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/bolivia/logros` | Lista logros activos |
-| `GET` | `/api/bolivia/logros/{id}` | Obtiene un logro activo |
-| `POST` | `/api/bolivia/logros` | Crea un logro |
-| `PUT` | `/api/bolivia/logros/{id}` | Actualiza un logro |
-| `DELETE` | `/api/bolivia/logros/{id}` | Soft delete del logro |
+Se implementaron cuatro controladores:
 
-## Soft delete
+- `JugadoresArgentinaController`
+- `PartidasArgentinaController`
+- `LogrosArgentinaController`
+- `LeaderboardArgentinaController`
 
-Las cuatro tablas de cada integrante tienen las columnas:
+Todos utilizan el atributo `[Authorize]` para exigir una sesión autenticada.
 
-- `is_deleted` (`boolean`, por defecto `false`).
-- `deleted_at` (`timestamptz`, nulo mientras está activo).
+Cada controlador permite:
 
-Reglas:
+| Método | Función |
+|---|---|
+| GET | Consultar una lista |
+| GET por ID | Consultar un registro |
+| POST | Crear un registro |
+| PUT | Actualizar un registro |
+| DELETE | Realizar un borrado lógico |
 
-- Los GET excluyen los registros con `is_deleted = true`.
-- `DELETE` no borra la fila: marca `is_deleted = true` y asigna `deleted_at`.
-- Un registro inactivo no se puede actualizar ni eliminar otra vez; la API responde 404.
-- La fila permanece físicamente en PostgreSQL y se puede comprobar con SQL.
+### 4.4. Endpoints de Argentina
 
-Ejemplo de verificación:
+**Jugadores**
+
+```text
+GET     /api/argentina/jugadores
+GET     /api/argentina/jugadores/{id}
+POST    /api/argentina/jugadores
+PUT     /api/argentina/jugadores/{id}
+DELETE  /api/argentina/jugadores/{id}
+```
+
+**Partidas**
+
+```text
+GET     /api/argentina/partidas
+GET     /api/argentina/partidas/{id}
+POST    /api/argentina/partidas
+PUT     /api/argentina/partidas/{id}
+DELETE  /api/argentina/partidas/{id}
+```
+
+**Logros**
+
+```text
+GET     /api/argentina/logros
+GET     /api/argentina/logros/{id}
+POST    /api/argentina/logros
+PUT     /api/argentina/logros/{id}
+DELETE  /api/argentina/logros/{id}
+```
+
+**Leaderboard**
+
+```text
+GET     /api/leaderboard/argentina
+GET     /api/leaderboard/argentina/{id}
+POST    /api/leaderboard/argentina
+PUT     /api/leaderboard/argentina/{id}
+DELETE  /api/leaderboard/argentina/{id}
+```
+
+## 5. Soft delete
+
+El sistema utiliza borrado lógico para evitar la eliminación física de registros.
+
+En las cuatro tablas de Argentina se agregaron las columnas:
+
+```text
+is_deleted
+deleted_at
+```
+
+**`is_deleted`:** indica si el registro fue eliminado.
+
+**`deleted_at`:** almacena la fecha y hora del borrado lógico.
+
+### Funcionamiento
+
+Cuando se ejecuta DELETE:
+
+1. La API busca el registro.
+2. Comprueba que todavía esté activo.
+3. Cambia `is_deleted` a `true`.
+4. Registra la fecha en `deleted_at`.
+5. Guarda los cambios.
+6. Devuelve HTTP 204.
+
+El registro permanece físicamente en PostgreSQL.
+
+Los métodos GET excluyen los registros marcados como eliminados.
+
+Si se intenta consultar, actualizar o volver a eliminar un registro inactivo, la API devuelve HTTP 404.
+
+### Resultados de las pruebas
+
+| Operación | Resultado |
+|---|---|
+| POST de un registro válido | HTTP 201 |
+| PUT de un registro activo | HTTP 204 |
+| DELETE de un registro activo | HTTP 204 |
+| GET de un registro eliminado | HTTP 404 |
+| PUT de un registro eliminado | HTTP 404 |
+| DELETE repetido | HTTP 404 |
+| Consulta SQL del registro eliminado | El registro sigue existiendo |
+
+Las pruebas se realizaron utilizando Swagger y PostgreSQL.
+
+### Verificación en PostgreSQL
 
 ```sql
 SELECT id, nombre, is_deleted, deleted_at
-FROM jugadores_bolivia
+FROM jugadores_argentina
 ORDER BY id DESC;
 ```
 
-## Migraciones
+En las pruebas se comprobó que las cuatro tablas conservaban sus registros eliminados con `is_deleted = true`.
 
-La API ejecuta `Database.Migrate()` al arrancar. Para generar una migración:
+### Migración de Argentina
 
-```powershell
-cd ProyectoTecWeb
-dotnet ef migrations add NombreDeLaMigracion
+Se generó y aplicó la siguiente migración:
+
+```text
+20261123060805_AddArgentinaSoftDelete
 ```
 
-Reglas para evitar conflictos:
+Esta migración agregó las columnas de borrado lógico a las cuatro tablas de Argentina.
 
-- Sincronizar `main` antes de generar la migración.
-- No editar a mano `AppDbContextModelSnapshot.cs` salvo que sea necesario.
-- Si hay conflicto en el snapshot, regenerar la migración sobre la versión más reciente.
+## 6. Pull Requests y trabajo colaborativo
 
-## Pruebas
+El desarrollo se realizó mediante forks, ramas individuales y Pull Requests.
 
-Con el stack levantado, el script puede comprobar primero el rechazo sin sesión:
+Los integrantes no necesitan convertirse en colaboradores directos del repositorio principal para enviar sus aportes.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\test-crud.ps1
-```
+### Pull Requests de Argentina
 
-Para probar el CRUD con sesión, iniciar sesión en el navegador, copiar la cookie `ProyectoTecWeb.Auth` desde DevTools y pasarla al script:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\test-crud.ps1 -Cookie "ProyectoTecWeb.Auth=VALOR"
-```
-
-No pegar la cookie en capturas, README, PDF ni ZIP. El script comprueba POST, GET lista, GET por ID, PUT, DELETE lógico, 404 posterior y que un registro inactivo ya no se pueda actualizar ni eliminar.
-
-Pruebas mínimas:
-
-1. `GET /api/leaderboard/bolivia` sin cookie → 401.
-2. Login con Google → `GET /api/auth/me` → 200.
-3. `POST` de leaderboard con sesión → 201.
-4. Login con Discord → `GET /api/auth/me` → 200.
-5. `DELETE` → 204; `GET` por ID → 404; fila conservada en PostgreSQL con `is_deleted = true`.
-6. Logout → `GET /api/auth/me` → 401.
-
-## Flujo de ramas y PRs
-
-El detalle completo está en [CONTRIBUTING.md](CONTRIBUTING.md). Resumen:
-
-| Etapa | Rama | Contenido |
+| PR | Implementación | Resultado |
 |---|---|---|
-| 0 | `docs/equipo` | README, CONTRIBUTING y reparto |
-| 1 | `feat/<pais>-tablas` | Cuatro tablas + migración |
-| 2 | `feat/<pais>-auth` | Dos logins + botones + sesión |
-| 3 | `feat/<pais>-controllers` | POST/GET protegidos con `[Authorize]` |
-| 4 | `practice/<pais>-post-duplicado` | PR fallida, cerrada sin merge |
-| 5 | `feat/<pais>-put-softdelete` | Dos commits: PUT y soft delete; Squash and merge |
+| [#1](https://github.com/NardoLj/ProyectoWebTec/pull/1) | Cuatro tablas de Argentina | Integrada |
+| [#12](https://github.com/NardoLj/ProyectoWebTec/pull/12) | Autenticación Twitch y Slack | Aprobada e integrada |
+| [#13](https://github.com/NardoLj/ProyectoWebTec/pull/13) | Cuatro controladores protegidos | Aprobada e integrada |
+| [#14](https://github.com/NardoLj/ProyectoWebTec/pull/14) | POST duplicado intencional | Rechazada y cerrada sin merge |
+| [#16](https://github.com/NardoLj/ProyectoWebTec/pull/16) | PUT y soft delete | Aprobada e integrada con Squash and merge |
 
-Nadie trabaja directamente en `main`. Los compañeros trabajan desde su fork y el líder revisa e integra. En las PR del líder, otro integrante deja la revisión y el líder hace la integración.
+### Pull Requests de Perú
 
-## Docker Hub
+- [PR #10 — Tablas de Perú](https://github.com/NardoLj/ProyectoWebTec/pull/10).
+- [PR #11 — Autenticación Dropbox y Spotify](https://github.com/NardoLj/ProyectoWebTec/pull/11).
 
-- Repositorio: <https://hub.docker.com/r/nardolj/proyectowebtec>
-- Etiqueta de la entrega anterior: `1.0.0`.
-- También se publicó `latest`.
-- La nueva versión con autenticación se publicará después de integrar y probar las ramas.
+### PR rechazada — Argentina
 
-## Evidencias y entregables
+Para practicar la revisión de aportes incorrectos, se creó una rama con un método POST duplicado.
 
-Cada integrante entrega su propio PDF o Word con:
+La duplicación provocaba un conflicto de rutas porque dos métodos utilizaban la misma ruta HTTP.
 
-- Nombre, equipo y rol.
-- Cuatro tablas y dos proveedores.
-- Enlaces al repositorio base, su fork y sus PR.
-- Capturas de login, identidad, logout y endpoints.
-- Captura de la PR fallida y su rechazo.
-- Captura de los dos commits y del squash final.
+El líder revisó el código, explicó el problema y solicitó cambios.
 
-El ZIP final se genera desde la versión integrada de `main` y no debe incluir `.env`, `bin/` ni `obj/`.
+La Pull Request #14 fue cerrada sin integrarse a `main`.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\crear-entrega.ps1
+### PR con Squash and merge — Argentina
+
+La implementación de PUT y soft delete se desarrolló mediante dos commits separados.
+
+**Primer commit:**
+
+```text
+4c3b069 feat(argentina): agregar PUT a cuatro controladores
 ```
 
-El script copia el proyecto a una carpeta temporal, excluye `.git`, `.env`, `bin`, `obj`, evidencias antiguas y archivos ZIP, y agrega un `LEEME.txt` con los pasos de ejecución.
+**Segundo commit:**
 
-## Seguridad
+```text
+5dd0e6e feat(argentina): implementar soft delete con migracion y filtros
+```
 
-- `.env` está ignorado por Git y no se incluye en la imagen.
-- Las credenciales OAuth se pasan solo en tiempo de ejecución.
-- No se guardan contraseñas en el Dockerfile ni en `appsettings.json`.
-- Las capturas y documentos deben ocultar secretos.
-- No agregar integrantes como colaboradores del repositorio base.
+La PR #16 recibió la aprobación del líder y se integró mediante **Squash and merge**.
 
-## Uso de IA
+**Commit final integrado en `main`:**
 
-Se usó IA como apoyo para la estructura del proyecto, el juego, la configuración de Docker y la documentación. El código generado se revisa, compila y prueba antes de integrarse.
+```text
+54472b3 Feat/argentina put softdelete (#16)
+```
+
+De esta manera, los dos commits originales quedaron registrados en la PR y sus cambios se incorporaron a `main` mediante un único commit.
+
+## 7. Configuración del proyecto
+
+### Requisitos
+
+Para ejecutar el proyecto se necesita:
+
+- Docker y Docker Compose.
+- Credenciales de los proveedores OAuth que se utilizarán.
+- Un archivo `.env` configurado.
+- Para HTTPS local, un certificado válido para `localhost`.
+
+Si se ejecuta sin Docker, también se necesita el SDK de .NET 10 y PostgreSQL.
+
+### Preparar variables de entorno
+
+Desde la carpeta principal del proyecto:
+
+```bash
+cp .env.example .env
+```
+
+En Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Después se deben configurar las variables necesarias.
+
+### Variables para los proveedores
+
+**Bolivia**
+
+```text
+DISCORD_CLIENT_ID
+DISCORD_CLIENT_SECRET
+
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+```
+
+**Perú**
+
+```text
+DROPBOX_CLIENT_ID
+DROPBOX_CLIENT_SECRET
+
+SPOTIFY_CLIENT_ID
+SPOTIFY_CLIENT_SECRET
+```
+
+**Argentina**
+
+```text
+TWITCH_CLIENT_ID
+TWITCH_CLIENT_SECRET
+
+SLACK_CLIENT_ID
+SLACK_CLIENT_SECRET
+```
+
+También se deben configurar las variables de PostgreSQL:
+
+```text
+POSTGRES_DB
+POSTGRES_USER
+POSTGRES_PASSWORD
+POSTGRES_HOST
+```
+
+**Importante:** nunca subir el archivo `.env` con contraseñas reales a GitHub.
+
+### Consideración para Perú
+
+Los proveedores Dropbox y Spotify están implementados en el backend, pero el archivo `contructor.yml` de la versión revisada no inyecta automáticamente sus cuatro variables OAuth.
+
+Para utilizarlos mediante Docker Compose es necesario agregar esas variables al servicio API o configurar un archivo Compose adicional.
+
+## 8. Ejecutar mediante Docker
+
+### Construcción del proyecto
+
+Desde la raíz del repositorio:
+
+```bash
+docker compose --env-file .env \
+  -f contructor.yml \
+  up -d --build
+```
+
+Comprobar los servicios:
+
+```bash
+docker compose --env-file .env \
+  -f contructor.yml \
+  ps
+```
+
+### Ejecutar con HTTPS local
+
+Para utilizar Twitch y Slack con el entorno HTTPS configurado:
+
+```bash
+docker compose --env-file .env \
+  -f contructor.yml \
+  -f oauth.local.yml \
+  up -d --build
+```
+
+Verificar los contenedores:
+
+```bash
+docker compose --env-file .env \
+  -f contructor.yml \
+  -f oauth.local.yml \
+  ps
+```
+
+En el entorno utilizado para las pruebas de Argentina se configuraron estas direcciones:
+
+**Aplicación:**
+
+https://localhost:8443/
+
+**Swagger:**
+
+https://localhost:8443/swagger
+
+La ejecución HTTPS requiere configurar el certificado local y sus variables correspondientes.
+
+El certificado privado no se incluye en el repositorio.
+
+### Detener los contenedores
+
+```bash
+docker compose --env-file .env \
+  -f contructor.yml \
+  -f oauth.local.yml \
+  down
+```
+
+No utilizar `down -v` si se desea conservar el volumen de PostgreSQL.
+
+## 9. Ejecutar sin Docker
+
+También es posible ejecutar la API con .NET 10, siempre que PostgreSQL y las variables de entorno estén configurados.
+
+```bash
+dotnet run --project ProyectoTecWeb/ProyectoTecWeb.csproj
+```
+
+Para generar una migración:
+
+```bash
+dotnet ef migrations add NombreDeLaMigracion \
+  --project ProyectoTecWeb/ProyectoTecWeb.csproj \
+  --startup-project ProyectoTecWeb/ProyectoTecWeb.csproj
+```
+
+La aplicación utiliza Entity Framework Core para administrar las migraciones de la base de datos.
+
+Para los proveedores que requieren HTTPS, es necesario configurar el servidor con una URL segura y registrar correctamente los callbacks.
+
+## 10. Pruebas de autenticación y API
+
+Las pruebas se realizaron mediante Swagger y sesiones reales.
+
+### Sin autenticación
+
+Se verificó que los controladores protegidos rechazaran solicitudes sin una sesión válida.
+
+**Resultado esperado:**
+
+```text
+HTTP 401 Unauthorized
+```
+
+### Con autenticación
+
+Después de iniciar sesión con Twitch o Slack, los endpoints protegidos permitieron consultar y crear registros.
+
+**Resultados comprobados:**
+
+```text
+GET    → HTTP 200
+POST   → HTTP 201
+PUT    → HTTP 204
+DELETE → HTTP 204
+```
+
+### Registros eliminados
+
+Después del borrado lógico:
+
+```text
+GET    → HTTP 404
+PUT    → HTTP 404
+DELETE → HTTP 404
+```
+
+En PostgreSQL se comprobó que los registros permanecían almacenados con `is_deleted = true`.
+
+## 11. Docker Hub
+
+Repositorio de imágenes del líder:
+
+https://hub.docker.com/r/nardolj/proyectowebtec
+
+El archivo `despliegue.yml` permite utilizar una imagen publicada en Docker Hub.
+
+Es importante comprobar que la etiqueta utilizada corresponda a una versión que incluya las funcionalidades de la Tarea 6.
+
+La etiqueta `1.0.0` corresponde a una entrega anterior y no garantiza que contenga todos los cambios nuevos.
+
+La integración de GitHub no publica automáticamente una nueva imagen de Docker Hub.
+
+## 12. Evidencias de la Tarea 6
+
+Cada integrante debe presentar un informe individual con las evidencias correspondientes a su trabajo.
+
+Para Argentina se reunieron pruebas de:
+
+1. Creación de las cuatro tablas.
+2. Migraciones de Entity Framework Core.
+3. Inicio de sesión con Twitch.
+4. Inicio de sesión con Slack.
+5. Identidad del usuario autenticado.
+6. Cierre de sesión.
+7. Protección de controladores mediante `[Authorize]`.
+8. Respuestas HTTP 401, 200 y 201.
+9. Revisión y aprobación de Pull Requests.
+10. PR #14 rechazada sin merge.
+11. Dos commits independientes para PUT y soft delete.
+12. PUT de los cuatro controladores.
+13. DELETE lógico y respuestas HTTP 404.
+14. Registros conservados físicamente en PostgreSQL.
+15. PR #16 integrada mediante Squash and merge.
+
+## 13. Entrega final
+
+La entrega del proyecto debe incluir:
+
+- Código fuente integrado.
+- Archivos Docker y Docker Compose.
+- Migraciones de Entity Framework Core.
+- Plantilla `.env.example`.
+- README actualizado.
+- Informe individual de cada integrante.
+- Capturas de funcionamiento.
+- Enlaces a las Pull Requests.
+
+El ZIP de entrega no debe incluir contraseñas, tokens, cookies de sesión ni certificados privados.
+
+Tampoco es necesario incluir las carpetas `bin`, `obj` o `.git`.
+
+Cada persona que ejecute el proyecto en otro equipo debe configurar sus propias credenciales y variables de entorno.
+
+## 14. Seguridad
+
+- Las contraseñas no deben almacenarse directamente en el código.
+- Las credenciales OAuth deben configurarse mediante variables de entorno.
+- El archivo `.env` debe mantenerse privado.
+- Los controladores protegidos requieren autenticación.
+- Las sesiones pueden cerrarse desde la aplicación.
+- Los secretos y tokens deben ocultarse de las capturas.
+- Los integrantes trabajan mediante forks y Pull Requests.
+- El borrado lógico permite conservar el historial de registros.
+
+## 15. Uso de inteligencia artificial
+
+Se utilizó inteligencia artificial como apoyo para la organización del proyecto, la documentación, la revisión del código y la solución de problemas técnicos.
+
+Los cambios se compilaron y verificaron mediante pruebas de funcionamiento antes de integrarse.
+
+---
+
+**ProyectoTecWeb — Circle Rush**
+
+**Tarea 6: Autenticación, controladores protegidos, Pull Requests y soft delete.**
+
+**Equipo:** Bolivia, Perú y Argentina.
+
+**Tecnologías:** .NET 10, PostgreSQL, Docker, OAuth y GitHub.
