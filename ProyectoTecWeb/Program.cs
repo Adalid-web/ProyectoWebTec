@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProyectoTecWeb.Auth;
 using ProyectoTecWeb.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddAppAuthentication(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -33,7 +35,11 @@ app.UseSwaggerUI();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
+app.MapAuthEndpoints();
 app.MapHealthChecks("/health");
 app.MapGet("/health/db", async (AppDbContext db) =>
 {

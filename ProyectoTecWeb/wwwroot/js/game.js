@@ -28,6 +28,7 @@
         saveMessage: document.getElementById("saveMessage"),
         playAgainButton: document.getElementById("playAgainButton"),
         startButton: document.getElementById("startButton"),
+        startHint: document.getElementById("startHint"),
         statusText: document.getElementById("statusText"),
         leaderboardList: document.getElementById("leaderboardList"),
         leaderboardStatus: document.getElementById("leaderboardStatus"),
@@ -49,6 +50,14 @@
 
     function currentServer() {
         return state.selectedServer;
+    }
+
+    function currentUser() {
+        return window.appAuth?.state?.user ?? null;
+    }
+
+    function isAuthenticated() {
+        return Boolean(currentUser());
     }
 
     function populateServers() {
@@ -161,6 +170,12 @@
     function startGame() {
         if (state.running) return;
 
+        if (!isAuthenticated()) {
+            showSaveMessage("Inicia sesión con Google o Discord para jugar y guardar.", true);
+            ui.statusText.textContent = "La sesión es obligatoria para usar la API.";
+            return;
+        }
+
         clearAllCircles();
         state.running = true;
         state.score = 0;
@@ -169,7 +184,7 @@
 
         ui.startOverlay.classList.add("hidden");
         ui.endOverlay.classList.add("hidden");
-        ui.saveButton.disabled = false;
+        ui.saveButton.disabled = !isAuthenticated();
         ui.saveButton.textContent = "Guardar puntuación";
         ui.saveMessage.textContent = "";
         ui.saveMessage.className = "message";
@@ -210,6 +225,11 @@
     async function saveScore() {
         if (state.saved) return;
 
+        if (!isAuthenticated()) {
+            showSaveMessage("Inicia sesión con Google o Discord antes de guardar.", true);
+            return;
+        }
+
         const playerName = ui.playerName.value.trim();
         if (!playerName) {
             showSaveMessage("Escribe tu nombre antes de guardar.", true);
@@ -230,10 +250,15 @@
             const response = await fetch(server.endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
                 body: JSON.stringify({ playerName, score: state.score })
             });
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error("Tu sesión expiró. Vuelve a iniciar sesión.");
+                }
+
                 if (response.status === 404) {
                     throw new Error(
                         `El servidor ${server.name} aún no tiene tabla/controlador. Pide a tu compañero que lo integre.`
@@ -268,6 +293,13 @@
     }
 
     async function loadLeaderboard() {
+        if (!isAuthenticated()) {
+            ui.leaderboardList.replaceChildren();
+            ui.leaderboardStatus.textContent = "Inicia sesión con Google o Discord para ver el leaderboard.";
+            ui.leaderboardStatus.className = "message";
+            return;
+        }
+
         const server = currentServer();
         ui.leaderboardStatus.textContent = "Cargando leaderboard...";
         ui.leaderboardStatus.className = "message";
@@ -275,8 +307,15 @@
 
         try {
             const response = await fetch(`${server.endpoint}?limit=10`, {
-                headers: { Accept: "application/json" }
+                headers: { Accept: "application/json" },
+                credentials: "same-origin"
             });
+
+            if (response.status === 401) {
+                ui.leaderboardStatus.textContent = "Tu sesión expiró. Vuelve a iniciar sesión.";
+                ui.leaderboardStatus.className = "message error";
+                return;
+            }
 
             if (response.status === 404) {
                 ui.leaderboardStatus.textContent = `El servidor ${server.name} aún no está disponible.`;
@@ -334,6 +373,46 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    function applyAuthState(authState) {
+        const user = authState?.user ?? null;
+
+        if (!user) {
+            if (state.running) {
+                state.running = false;
+                if (state.timerId !== null) {
+                    clearInterval(state.timerId);
+                    state.timerId = null;
+                }
+                clearAllCircles();
+                ui.startOverlay.classList.remove("hidden");
+                ui.endOverlay.classList.add("hidden");
+            }
+
+            ui.startButton.disabled = true;
+            ui.saveButton.disabled = true;
+            ui.startHint.textContent =
+                "Inicia sesión con Google o Discord para jugar. La API protege los endpoints.";
+            ui.statusText.textContent = "Inicia sesión para jugar y guardar.";
+            ui.leaderboardList.replaceChildren();
+            ui.leaderboardStatus.textContent =
+                "Inicia sesión con Google o Discord para ver el leaderboard.";
+            ui.leaderboardStatus.className = "message";
+            return;
+        }
+
+        ui.startButton.disabled = false;
+        ui.saveButton.disabled = false;
+        ui.startHint.textContent =
+            `Sesión iniciada como ${user.name}. Haz clic en los círculos antes de que se acabe el tiempo.`;
+        ui.statusText.textContent = "Sesión iniciada. Elige un servidor y empieza a jugar.";
+
+        if (!ui.playerName.value.trim()) {
+            ui.playerName.value = user.name || user.email || "";
+        }
+
+        loadLeaderboard();
+    }
+
     ui.startButton.addEventListener("click", startGame);
     ui.playAgainButton.addEventListener("click", startGame);
     ui.saveButton.addEventListener("click", saveScore);
@@ -353,4 +432,11 @@
     }
     selectServer(state.selectedServer.id);
     updateHud();
+
+    if (window.appAuth) {
+        window.appAuth.onChange(applyAuthState);
+    } else {
+        ui.startHint.textContent = "No se pudo cargar el módulo de autenticación.";
+        ui.statusText.textContent = "Recarga la página para intentar de nuevo.";
+    }
 })();
