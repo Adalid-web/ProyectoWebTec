@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProyectoTecWeb.Data;
@@ -7,6 +8,7 @@ using ProyectoTecWeb.Models;
 namespace ProyectoTecWeb.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/leaderboard/bolivia")]
 [Tags("Leaderboard Bolivia")]
 public class LeaderboardBoliviaController : ControllerBase
