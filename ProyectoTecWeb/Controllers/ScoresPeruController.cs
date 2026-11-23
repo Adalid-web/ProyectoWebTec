@@ -1,0 +1,47 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProyectoTecWeb.Data;
+using ProyectoTecWeb.DTOs;
+using ProyectoTecWeb.Models;
+
+namespace ProyectoTecWeb.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/peru/scores")]
+[Tags("Perú · Scores")]
+public class ScoresPeruController : ControllerBase
+{
+    private readonly AppDbContext _db;
+    public ScoresPeruController(AppDbContext db) => _db = db;
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ScoreResponseDto>>> GetAll()
+    {
+        var items = await _db.PeruScores.AsNoTracking().OrderByDescending(s => s.Score).ThenByDescending(s => s.Id)
+            .Select(s => new ScoreResponseDto { Id = s.Id, PlayerName = s.PlayerName, Score = s.Score, CreatedAt = s.CreatedAt })
+            .ToListAsync();
+        return Ok(items);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<ScoreResponseDto>> GetById(int id)
+    {
+        var item = await _db.PeruScores.AsNoTracking().Where(s => s.Id == id)
+            .Select(s => new ScoreResponseDto { Id = s.Id, PlayerName = s.PlayerName, Score = s.Score, CreatedAt = s.CreatedAt })
+            .FirstOrDefaultAsync();
+        return item is null ? NotFound(new { message = "Puntaje de Perú no encontrado." }) : Ok(item);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<ScoreResponseDto>> Create([FromBody] ScoreRequestDto dto)
+    {
+        var entity = new ScorePeru { PlayerName = dto.PlayerName.Trim(), Score = dto.Score, CreatedAt = DateTime.UtcNow };
+        _db.PeruScores.Add(entity);
+        await _db.SaveChangesAsync();
+
+        var response = new ScoreResponseDto { Id = entity.Id, PlayerName = entity.PlayerName, Score = entity.Score, CreatedAt = entity.CreatedAt };
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, response);
+    }
+}
