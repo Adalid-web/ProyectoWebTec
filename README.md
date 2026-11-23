@@ -332,6 +332,12 @@ Cada integrante entrega su propio PDF o Word con:
 
 El ZIP final se genera desde la versión integrada de `main` y no debe incluir `.env`, `bin/` ni `obj/`.
 
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\crear-entrega.ps1
+```
+
+El script copia el proyecto a una carpeta temporal, excluye `.git`, `.env`, `bin`, `obj`, evidencias antiguas y archivos ZIP, y agrega un `LEEME.txt` con los pasos de ejecución.
+
 ## Seguridad
 
 - `.env` está ignorado por Git y no se incluye en la imagen.
