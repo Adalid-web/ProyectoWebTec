@@ -3,6 +3,8 @@ namespace ProyectoTecWeb.Models;
 public class LogroArgentina
 {
     public int Id { get; set; }
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; }
     public int JugadorId { get; set; }
     public string Nombre { get; set; } = string.Empty;
     public string? Descripcion { get; set; }

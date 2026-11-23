@@ -33,5 +33,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<JugadorBolivia>().HasQueryFilter(jugador => !jugador.IsDeleted);
         modelBuilder.Entity<PartidaBolivia>().HasQueryFilter(partida => !partida.IsDeleted);
         modelBuilder.Entity<LogroBolivia>().HasQueryFilter(logro => !logro.IsDeleted);
+
+        // Soft delete de Argentina: las consultas normales no muestran registros eliminados.
+        modelBuilder.Entity<ScoreArgentina>().HasQueryFilter(score => !score.IsDeleted);
+        modelBuilder.Entity<JugadorArgentina>().HasQueryFilter(jugador => !jugador.IsDeleted);
+        modelBuilder.Entity<PartidaArgentina>().HasQueryFilter(partida => !partida.IsDeleted);
+        modelBuilder.Entity<LogroArgentina>().HasQueryFilter(logro => !logro.IsDeleted);
     }
 }

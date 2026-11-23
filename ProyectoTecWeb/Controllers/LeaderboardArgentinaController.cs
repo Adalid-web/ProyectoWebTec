@@ -55,6 +55,32 @@ public class LeaderboardArgentinaController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = score.Id }, ToResponse(score));
     }
 
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ScoreRequestDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.PlayerName))
+            return BadRequest(new { message = "El nombre no puede estar vacío." });
+        var score = await _db.ArgentinaScores.FirstOrDefaultAsync(s => s.Id == id);
+        if (score is null) return NotFound(new { message = "Puntaje no encontrado." });
+
+        score.PlayerName = dto.PlayerName.Trim();
+        score.Score = dto.Score;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var score = await _db.ArgentinaScores.FirstOrDefaultAsync(x => x.Id == id);
+        if (score is null) return NotFound(new { message = "Puntaje no encontrado." });
+
+        score.IsDeleted = true;
+        score.DeletedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return NoContent();
+    }
+
     private static ScoreResponseDto ToResponse(ScoreArgentina s) => new()
     {
         Id = s.Id, PlayerName = s.PlayerName, Score = s.Score, CreatedAt = s.CreatedAt
