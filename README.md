@@ -14,13 +14,13 @@ El proyecto también cumple la consigna de Web API: cada integrante tiene **cuat
 
 | Integrante | País | Cuatro tablas | Login fácil | Login medio | Estado |
 |---|---|---|---|---|---|
-| **Leonardo Julio** (líder) | Bolivia 🇧🇴 | `leaderboard_bolivia`, `jugadores_bolivia`, `partidas_bolivia`, `logros_bolivia` | Discord | Google | En integración |
+| **Leonardo Julio** (líder) | Bolivia 🇧🇴 | `leaderboard_bolivia`, `jugadores_bolivia`, `partidas_bolivia`, `logros_bolivia` | Discord | Google | Integrado |
 | **Jheferson Velasco** | Perú 🇵🇪 | `leaderboard_peru`, `jugadores_peru`, `partidas_peru`, `logros_peru` | Twitch | Microsoft | Pendiente |
-| **Adalid Calizaya** | Argentina 🇦🇷 | `leaderboard_argentina`, `jugadores_argentina`, `partidas_argentina`, `logros_argentina` | Dropbox | Slack | Tablas integradas |
+| **Adalid Calizaya** | Argentina 🇦🇷 | `leaderboard_argentina`, `jugadores_argentina`, `partidas_argentina`, `logros_argentina` | Dropbox | Slack | Tablas integradas; resto pendiente |
 
 El reparto está registrado antes de programar y no se repite ningún proveedor entre integrantes.
 
-> Adalid ya integró sus cuatro tablas de Argentina mediante la PR #1. Las demás etapas se trabajan en ramas separadas y se integran por Pull Request.
+> Las PR #2 a #5 y #8 integraron la documentación, las tablas, la autenticación, los controladores y las evidencias de Bolivia. La PR #6 se cerró sin merge como práctica de conflicto de rutas. La PR #7 se integró con **Squash and merge**. Adalid ya integró sus cuatro tablas de Argentina mediante la PR #1; las demás etapas de Perú y Argentina se trabajan en sus forks.
 
 ## Stack
 
