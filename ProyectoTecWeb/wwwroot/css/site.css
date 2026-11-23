@@ -106,6 +106,7 @@ select {
 .auth-area {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     min-height: 3.1rem;
     padding: 0.35rem 0.45rem;
     border: 1px solid var(--card-border);
@@ -164,9 +165,27 @@ select {
     transition: transform 0.12s ease, background 0.12s ease;
 }
 
-.btn-oauth:hover {
+.btn-oauth:hover:not(:disabled) {
     transform: translateY(-1px);
     background: rgba(148, 163, 184, 0.16);
+}
+
+.btn-oauth-unconfigured {
+    opacity: 0.55;
+    border-style: dashed;
+    cursor: not-allowed;
+}
+
+.auth-message {
+    flex: 1 0 100%;
+    padding: 0.3rem 0.4rem;
+    color: var(--accent);
+    font-size: 0.73rem;
+    line-height: 1.4;
+}
+
+.auth-message-error {
+    color: var(--danger);
 }
 
 .oauth-icon {

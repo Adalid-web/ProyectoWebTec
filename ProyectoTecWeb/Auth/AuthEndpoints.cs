@@ -9,7 +9,7 @@ public static class AuthEndpoints
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/api/auth/providers", (IConfiguration configuration) =>
-            Results.Ok(AuthProviderCatalog.GetConfigured(configuration)));
+            Results.Ok(AuthProviderCatalog.GetAvailability(configuration)));
 
         endpoints.MapGet("/api/auth/me", (ClaimsPrincipal user) =>
         {
