@@ -16,6 +16,8 @@ Los proveedores no se repiten entre integrantes. Cada uno implementa uno de la l
 
 Las credenciales reales se guardan únicamente en `.env` (ignorado por Git) o en `dotnet user-secrets`. Nunca se suben al repositorio, al PDF ni al ZIP.
 
+> **No confundir credenciales de la aplicación con cuentas de usuario.** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `DISCORD_CLIENT_ID` y `DISCORD_CLIENT_SECRET` son credenciales de la aplicación OAuth. No son el correo, el usuario ni la contraseña de las cuentas de prueba. Las cuentas de prueba se usan únicamente en el navegador cuando Google o Discord muestran su pantalla de login; nunca se escriben en `.env`.
+
 ### Para Docker Compose
 
 Copiar `.env.example` a `.env` y completar:
