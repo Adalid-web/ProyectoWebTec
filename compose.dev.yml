@@ -28,9 +28,8 @@ services:
     environment:
       PORT: "8080"
       AUTH_KEYS_PATH: /auth-keys
-      # Desarrollo local: la API solo se publica en 127.0.0.1;
-      # todo login HTTP(S) publico pasa por Nginx.
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      # La API solo se publica en 127.0.0.1; el navegador usa Nginx.
+      # Las cabeceras X-Forwarded-* se configuran en Program.cs.
 
       ASPNETCORE_ENVIRONMENT: Production
 

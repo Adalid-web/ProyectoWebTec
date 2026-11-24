@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using ProyectoTecWeb.Auth;
 using ProyectoTecWeb.Data;
@@ -42,7 +43,19 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddAppAuthentication(builder.Configuration);
 builder.Services.AddArgentinaAuthProviders(builder.Configuration);
-// Proyecto Final, punto 2: autorizacion real del reporte de Argentina.
+
+// Nginx termina HTTPS y reenvia Host/Proto. Sin estas cabeceras, los callbacks
+// OAuth se generarian con http://api:8080 en lugar de la URL publica.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+        | ForwardedHeaders.XForwardedHost
+        | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// Proyecto Final, punto 2: autorizacion real de los reportes.
 // El boton del frontend no sustituye esta comprobacion del backend.
 builder.Services.AddAuthorization(options =>
 {
@@ -50,12 +63,15 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser()
               .RequireClaim(AuthenticationExtensions.ProviderClaimType, "Twitch", "Slack"));
 });
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 ApplyMigrations(app);
 
