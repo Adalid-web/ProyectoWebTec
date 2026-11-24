@@ -10,7 +10,7 @@
 
 Las peticiones del navegador a `/api/*`, `/login/*`, `/signin-*`, `/logout`, `/health/*` y `/swagger/*` son enviadas por Nginx a `api:8080`. No es necesario configurar CORS entre frontend y backend porque comparten el mismo origen HTTPS.
 
-La aplicacion lee `X-Forwarded-Proto` para construir correctamente los callbacks de los proveedores. `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` es una **configuracion solo de desarrollo local**: no reutilizarla en un servidor publico sin establecer los proxies confiables y limitar el acceso a la API.
+La aplicacion configura `ForwardedHeaders` en `Program.cs` para leer `X-Forwarded-For`, `X-Forwarded-Host` y `X-Forwarded-Proto`. Asi los callbacks OAuth se generan con `https://localhost:8443` y Nginx puede actuar como proxy inverso. Es una **configuracion de desarrollo local**: en un servidor publico hay que limitar los proxies confiables y el acceso directo a la API.
 
 ## Certificados HTTPS
 
