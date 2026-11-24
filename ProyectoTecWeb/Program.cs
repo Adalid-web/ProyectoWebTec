@@ -59,6 +59,14 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // El boton del frontend no sustituye esta comprobacion del backend.
 builder.Services.AddAuthorization(options =>
 {
+    options.AddPolicy("ReporteBolivia", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(AuthenticationExtensions.ProviderClaimType, "Google", "Discord"));
+
+    options.AddPolicy("ReportePeru", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(AuthenticationExtensions.ProviderClaimType, "Dropbox", "Spotify"));
+
     options.AddPolicy("ReporteArgentina", policy =>
         policy.RequireAuthenticatedUser()
               .RequireClaim(AuthenticationExtensions.ProviderClaimType, "Twitch", "Slack"));
