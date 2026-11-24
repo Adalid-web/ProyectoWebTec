@@ -54,11 +54,36 @@ public static class AuthEndpoints
         endpoints.MapGet("/login/slack", (IConfiguration configuration) =>
             ChallengeProvider(configuration, "Slack"));
 
-        endpoints.MapPost("/logout", async (HttpContext context) =>
+        endpoints.MapGet("/login/tiktok", (HttpContext context, IConfiguration configuration) =>
         {
+            if (!AuthProviderCatalog.IsConfigured(configuration, "TikTok"))
+                return ChallengeProvider(configuration, "TikTok");
+            var redirect = AuthProviderCatalog.GetTikTokRedirectUri(configuration)!;
+            var origin = redirect.GetLeftPart(UriPartial.Authority);
+            var currentOrigin = $"{context.Request.Scheme}://{context.Request.Host}";
+            // Start the challenge on the same public origin that receives its correlation cookie.
+            if (!string.Equals(currentOrigin, origin, StringComparison.OrdinalIgnoreCase))
+                return Results.Redirect(origin + "/login/tiktok");
+            return ChallengeProvider(configuration, "TikTok");
+        });
+
+        // Logout normal: revoca la sesión actual, incluso en otra pestaña.
+        endpoints.MapPost("/logout", async (HttpContext context, LocalSingleSignOutStore store) =>
+        {
+            var sessionId = context.User.FindFirst(LocalSingleSignOutStore.SessionIdClaim)?.Value;
+            await store.RevokeOneAsync(sessionId, context.RequestAborted);
             await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Results.Redirect("/");
         });
+
+        // Single Sign-Out: todas las sesiones de la misma identidad de proveedor.
+        // No revoca cookies del propio Twitch, Slack u otros servicios externos.
+        endpoints.MapPost("/api/auth/logout/all", async (HttpContext context, LocalSingleSignOutStore store) =>
+        {
+            var revoked = await store.RevokeAllAsync(context.User, context.RequestAborted);
+            await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Results.Ok(new { status = "signed_out_everywhere", sessionsRevoked = revoked });
+        }).RequireAuthorization();
 
         return endpoints;
     }

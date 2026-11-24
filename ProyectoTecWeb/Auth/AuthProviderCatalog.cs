@@ -12,7 +12,8 @@ public static class AuthProviderCatalog
         new("dropbox", "Dropbox", "Dropbox", "❖"),
         new("spotify", "Spotify", "Spotify", "♫"),
         new("twitch", "Twitch", "Twitch", "T"),
-        new("slack", "Slack", "Slack", "S")
+        new("slack", "Slack", "Slack", "S"),
+        new("tiktok", "TikTok", "TikTok", "♪")
     ];
 
     // La interfaz muestra los seis proveedores, indicando cuáles están listos.
@@ -30,7 +31,17 @@ public static class AuthProviderCatalog
             .ToList();
 
     public static bool IsConfigured(IConfiguration configuration, string scheme) =>
-        GetCredentials(configuration, scheme) is not null;
+        GetCredentials(configuration, scheme) is not null &&
+        (scheme != "TikTok" || GetTikTokRedirectUri(configuration) is not null);
+
+    public static Uri? GetTikTokRedirectUri(IConfiguration configuration)
+    {
+        var value = configuration["Authentication:TikTok:RedirectUri"];
+        return Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+            uri.Scheme == Uri.UriSchemeHttps && uri.AbsolutePath == "/signin-tiktok" &&
+            string.IsNullOrEmpty(uri.Query) && string.IsNullOrEmpty(uri.Fragment) &&
+            string.IsNullOrEmpty(uri.UserInfo) ? uri : null;
+    }
 
     public static ProviderCredentials? GetCredentials(IConfiguration configuration, string scheme)
     {

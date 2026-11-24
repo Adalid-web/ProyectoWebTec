@@ -175,5 +175,53 @@
         }
     };
 
+    if (new URLSearchParams(window.location.search).get("auth_error") === "tiktok") {
+        showNotice("No se completó el inicio de sesión con TikTok. Revisa la configuración de Sandbox antes de reintentar.", true);
+        window.history.replaceState(null, "", window.location.pathname);
+    }
     refresh();
+})();
+
+// PRUEBA LOCAL: Single Sign-Out de Circle Rush (NO cierra twitch.tv o slack.com).
+(() => {
+    "use strict";
+    const logoutButton = document.getElementById("logoutButton");
+    if (!logoutButton || document.getElementById("logoutAllButton")) return;
+
+    const button = document.createElement("button");
+    button.id = "logoutAllButton";
+    button.type = "button";
+    button.className = logoutButton.className;
+    button.textContent = "Salir de todos";
+    button.title = "Invalida todas tus sesiones de Circle Rush para este proveedor, incluso en otros navegadores";
+    button.style.marginLeft = "6px";
+    logoutButton.insertAdjacentElement("afterend", button);
+
+    button.addEventListener("click", async () => {
+        if (!window.confirm("¿Cerrar TODAS tus sesiones de Circle Rush con esta cuenta, incluso en otros equipos?")) return;
+        button.disabled = true;
+        try {
+            const response = await fetch("/api/auth/logout/all", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { Accept: "application/json" },
+                cache: "no-store"
+            });
+            if (!response.ok) throw new Error(`Error de salida global: HTTP ${response.status}`);
+            const confirmation = await fetch("/api/auth/me", {
+                credentials: "same-origin", cache: "no-store"
+            });
+            if (confirmation.status !== 401) throw new Error("La API aún reconoce esta sesión.");
+            await window.appAuth.refresh();
+            window.alert("Se cerraron las sesiones de Circle Rush de esta cuenta. Las sesiones del proveedor externo no se cierran.");
+        } catch (error) {
+            window.alert(error.message || "No se pudo cerrar la sesión en todos los equipos.");
+            await window.appAuth.refresh();
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    // Al volver a la pestaña, refleja la invalidación hecha desde otro dispositivo.
+    window.addEventListener("focus", () => { void window.appAuth.refresh(); });
 })();

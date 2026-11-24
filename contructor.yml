@@ -27,6 +27,9 @@ services:
       Authentication__Twitch__ClientSecret: "${TWITCH_CLIENT_SECRET:-}"
       Authentication__Slack__ClientId: "${SLACK_CLIENT_ID:-}"
       Authentication__Slack__ClientSecret: "${SLACK_CLIENT_SECRET:-}"
+      Authentication__TikTok__ClientId: "${TIKTOK_CLIENT_KEY:-}"
+      Authentication__TikTok__ClientSecret: "${TIKTOK_CLIENT_SECRET:-}"
+      Authentication__TikTok__RedirectUri: "${TIKTOK_REDIRECT_URI:-}"
     depends_on:
       postgres:
         condition: service_healthy

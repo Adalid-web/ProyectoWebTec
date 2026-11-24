@@ -33,6 +33,33 @@ public static class AuthenticationExtensions
             options.SlidingExpiration = true;
             options.ExpireTimeSpan = TimeSpan.FromHours(8);
 
+            // PRUEBA LOCAL: cada cookie nueva tiene ID revocable en PostgreSQL.
+            options.Events.OnSigningIn = async context =>
+            {
+                if (context.Principal?.Identity is not ClaimsIdentity identity)
+                    throw new InvalidOperationException("No se recibió una identidad válida.");
+
+                var sessionId = Guid.NewGuid().ToString("N");
+                identity.AddClaim(new Claim(LocalSingleSignOutStore.SessionIdClaim, sessionId));
+                var store = context.HttpContext.RequestServices
+                    .GetRequiredService<LocalSingleSignOutStore>();
+                await store.RegisterAsync(context.Principal, sessionId, context.HttpContext.RequestAborted);
+            };
+
+            // El ID se consulta en la BD en cada petición, también en otras instancias.
+            options.Events.OnValidatePrincipal = async context =>
+            {
+                var sessionId = context.Principal?
+                    .FindFirst(LocalSingleSignOutStore.SessionIdClaim)?.Value;
+                var store = context.HttpContext.RequestServices
+                    .GetRequiredService<LocalSingleSignOutStore>();
+                if (!await store.IsActiveAsync(sessionId, context.HttpContext.RequestAborted))
+                {
+                    context.RejectPrincipal();
+                    await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                }
+            };
+
             // La API debe responder 401/403, no redirigir al login cuando no hay sesión.
             options.Events.OnRedirectToLogin = context =>
             {
