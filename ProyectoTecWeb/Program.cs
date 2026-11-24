@@ -42,6 +42,14 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddAppAuthentication(builder.Configuration);
 builder.Services.AddArgentinaAuthProviders(builder.Configuration);
+// Proyecto Final, punto 2: autorizacion real del reporte de Argentina.
+// El boton del frontend no sustituye esta comprobacion del backend.
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ReporteArgentina", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(AuthenticationExtensions.ProviderClaimType, "Twitch", "Slack"));
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

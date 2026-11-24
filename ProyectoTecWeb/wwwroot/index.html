@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#07111f" />
     <title>Circle Rush · ProyectoTecWeb</title>
     <link rel="stylesheet" href="/css/site.css" />
+    <link rel="stylesheet" href="/css/reporte-argentina.css" />
 </head>
 <body>
     <div class="app">
@@ -105,6 +106,21 @@
             </aside>
         </main>
 
+        <!-- Proyecto Final: reporte protegido de Argentina. El permiso se valida en el backend. -->
+        <section class="card reporte-argentina-card" aria-labelledby="reporteArgentinaTitle">
+            <div class="reporte-argentina-heading">
+                <div>
+                    <h2 id="reporteArgentinaTitle">Reporte de Argentina</h2>
+                    <p>Autor: Adalid Callizaya · Jugadores, partidas, logros y mejores puntajes</p>
+                </div>
+                <button class="btn btn-primary" id="verReporteArgentina" type="button">Consultar reporte</button>
+            </div>
+            <p id="reporteArgentinaEstado" class="message" role="status" aria-live="polite">
+                Requiere iniciar sesion con Twitch o Slack.
+            </p>
+            <div id="reporteArgentinaResultado" aria-live="polite"></div>
+        </section>
+
         <footer class="footer">
             <span>ProyectoTecWeb · .NET 10 + PostgreSQL</span>
             <span>Leonardo Julio · Jheferson Velasco · Adalid Calizaya</span>
@@ -113,5 +129,6 @@
 
     <script src="/js/auth.js"></script>
     <script src="/js/game.js"></script>
+    <script src="/js/reporte-argentina.js"></script>
 </body>
 </html>

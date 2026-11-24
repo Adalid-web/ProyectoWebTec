@@ -1,0 +1,14 @@
+/* Reporte de Argentina: solo estilos de esta seccion, sin alterar Circle Rush. */
+.reporte-argentina-card { margin-top: 1.1rem; padding: 1.2rem; }
+.reporte-argentina-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+.reporte-argentina-heading h2 { margin:0; font-size:1.25rem; }
+.reporte-argentina-heading p { margin:.35rem 0 .55rem; color:var(--muted); font-size:.85rem; }
+.reporte-indicadores { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:.7rem; margin:1rem 0; }
+.reporte-indicador { display:flex; flex-direction:column; padding:.8rem; gap:.35rem; border:1px solid var(--card-border); border-radius:14px; background:rgba(148,163,184,.06); }
+.reporte-indicador small { color:var(--muted); }
+.reporte-indicador strong { color:var(--accent); font-size:1.6rem; }
+#reporteArgentinaResultado h3 { margin:1rem 0 .4rem; font-size:1rem; }
+.reporte-tabla-contenedor { width:100%; overflow-x:auto; }
+.reporte-tabla { border-collapse:collapse; width:100%; min-width:400px; font-size:.88rem; }
+.reporte-tabla th,.reporte-tabla td { padding:.6rem .5rem; border-bottom:1px solid var(--card-border); text-align:left; }
+.reporte-tabla th { color:var(--accent); }
