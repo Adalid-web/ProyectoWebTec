@@ -15,6 +15,15 @@ public static class AuthProviderCatalog
         new("slack", "Slack", "Slack", "S")
     ];
 
+    // La interfaz muestra los seis proveedores, indicando cuáles están listos.
+    // No exponemos credenciales, solo el estado de configuración.
+    public static IReadOnlyList<AuthProviderAvailability> GetAvailability(IConfiguration configuration) =>
+        Providers
+            .Select(provider => new AuthProviderAvailability(
+                provider.Id, provider.Name, provider.Scheme, provider.Icon,
+                IsConfigured(configuration, provider.Scheme)))
+            .ToList();
+
     public static IReadOnlyList<AuthProviderInfo> GetConfigured(IConfiguration configuration) =>
         Providers
             .Where(provider => IsConfigured(configuration, provider.Scheme))
