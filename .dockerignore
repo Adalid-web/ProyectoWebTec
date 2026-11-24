@@ -1,0 +1,14 @@
+# Evita enviar secretos al contexto de construccion de Nginx.
+.git
+.env
+.env.*
+!.env.example
+.https
+.auth-keys
+**/bin
+**/obj
+**/node_modules
+**/*.pfx
+**/*.pem
+**/*.key
+*.zip

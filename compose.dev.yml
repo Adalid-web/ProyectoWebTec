@@ -18,10 +18,19 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${API_PORT:-8080}:8080"
+      - "127.0.0.1:${API_PORT:-8080}:8080"
+
+    # Mantener las claves de sesion al recrear el backend.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      - ./.auth-keys:/auth-keys
 
     environment:
       PORT: "8080"
+      AUTH_KEYS_PATH: /auth-keys
+      # Desarrollo local: la API solo se publica en 127.0.0.1;
+      # todo login HTTP(S) publico pasa por Nginx.
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
 
       ASPNETCORE_ENVIRONMENT: Production
 
@@ -52,6 +61,23 @@ services:
       postgres:
         condition: service_healthy
 
+    networks:
+      - appnet
+
+  # El navegador solo accede a este servicio HTTPS.
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: circle-rush-frontend:dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./.https/nginx-localhost.crt:/etc/nginx/tls/localhost.crt:ro
+      - ./.https/nginx-localhost.key:/etc/nginx/tls/localhost.key:ro
+    depends_on:
+      - api
     networks:
       - appnet
 
