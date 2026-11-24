@@ -7,6 +7,7 @@
     <title>Circle Rush · ProyectoTecWeb</title>
     <link rel="stylesheet" href="/css/site.css" />
     <link rel="stylesheet" href="/css/reporte-argentina.css" />
+    <link rel="stylesheet" href="/css/reportes.css" />
 </head>
 <body>
     <div class="app">
@@ -121,6 +122,34 @@
             <div id="reporteArgentinaResultado" aria-live="polite"></div>
         </section>
 
+        <section class="card reporte-pais-card" aria-labelledby="reporteBoliviaTitle">
+            <div class="reporte-pais-heading">
+                <div>
+                    <h2 id="reporteBoliviaTitle">Reporte de Bolivia</h2>
+                    <p>Autor: Leonardo Julio · Jugadores, partidas, logros y mejores puntajes</p>
+                </div>
+                <button class="btn btn-primary" id="verReporteBolivia" type="button">Consultar reporte</button>
+            </div>
+            <p id="reporteBoliviaEstado" class="message" role="status" aria-live="polite">
+                Requiere iniciar sesión con Google o Discord.
+            </p>
+            <div id="reporteBoliviaResultado" class="reporte-resultado" aria-live="polite"></div>
+        </section>
+
+        <section class="card reporte-pais-card" aria-labelledby="reportePeruTitle">
+            <div class="reporte-pais-heading">
+                <div>
+                    <h2 id="reportePeruTitle">Reporte de Perú</h2>
+                    <p>Autor: Jheferson Velasco · Jugadores, partidas, logros y mejores puntajes</p>
+                </div>
+                <button class="btn btn-primary" id="verReportePeru" type="button">Consultar reporte</button>
+            </div>
+            <p id="reportePeruEstado" class="message" role="status" aria-live="polite">
+                Requiere iniciar sesión con Dropbox o Spotify.
+            </p>
+            <div id="reportePeruResultado" class="reporte-resultado" aria-live="polite"></div>
+        </section>
+
         <footer class="footer">
             <span>ProyectoTecWeb · .NET 10 + PostgreSQL</span>
             <span>Leonardo Julio · Jheferson Velasco · Adalid Calizaya</span>
@@ -130,5 +159,6 @@
     <script src="/js/auth.js"></script>
     <script src="/js/game.js"></script>
     <script src="/js/reporte-argentina.js"></script>
+    <script src="/js/reportes-bolivia-peru.js"></script>
 </body>
 </html>
