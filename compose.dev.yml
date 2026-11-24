@@ -1,0 +1,90 @@
+# PROYECTO FINAL - TECNOLOGIA WEB I
+# Docker Compose de desarrollo
+# Proyecto: Circle Rush - .NET 10 + PostgreSQL 16
+
+name: proyectotecweb
+
+services:
+
+  api:
+    container_name: ${API_CONTAINER_NAME:-proyectotecweb-api}
+
+    build:
+      context: ./ProyectoTecWeb
+      dockerfile: Dockerfile
+
+    image: circle-rush-api:dev
+
+    restart: unless-stopped
+
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+    environment:
+      PORT: "8080"
+
+      ASPNETCORE_ENVIRONMENT: Production
+
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+
+      # Bolivia
+      Authentication__Google__ClientId: "${GOOGLE_CLIENT_ID:-}"
+      Authentication__Google__ClientSecret: "${GOOGLE_CLIENT_SECRET:-}"
+
+      Authentication__Discord__ClientId: "${DISCORD_CLIENT_ID:-}"
+      Authentication__Discord__ClientSecret: "${DISCORD_CLIENT_SECRET:-}"
+
+      # Peru
+      Authentication__Dropbox__ClientId: "${DROPBOX_CLIENT_ID:-}"
+      Authentication__Dropbox__ClientSecret: "${DROPBOX_CLIENT_SECRET:-}"
+
+      Authentication__Spotify__ClientId: "${SPOTIFY_CLIENT_ID:-}"
+      Authentication__Spotify__ClientSecret: "${SPOTIFY_CLIENT_SECRET:-}"
+
+      # Argentina
+      Authentication__Twitch__ClientId: "${TWITCH_CLIENT_ID:-}"
+      Authentication__Twitch__ClientSecret: "${TWITCH_CLIENT_SECRET:-}"
+
+      Authentication__Slack__ClientId: "${SLACK_CLIENT_ID:-}"
+      Authentication__Slack__ClientSecret: "${SLACK_CLIENT_SECRET:-}"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - appnet
+
+  postgres:
+    container_name: ${POSTGRES_CONTAINER_NAME:-proyectotecweb-db}
+
+    image: postgres:16-alpine
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+    networks:
+      - appnet
+
+volumes:
+  pgdata:
+
+networks:
+  appnet:
+    driver: bridge
