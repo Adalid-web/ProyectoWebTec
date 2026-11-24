@@ -41,8 +41,11 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+// PRUEBA LOCAL: almacenamiento compartido de sesiones revocadas (Single Sign-Out).
+builder.Services.AddSingleton<LocalSingleSignOutStore>();
 builder.Services.AddAppAuthentication(builder.Configuration);
 builder.Services.AddArgentinaAuthProviders(builder.Configuration);
+builder.Services.AddTikTokAuthProvider(builder.Configuration);
 
 // Nginx termina HTTPS y reenvia Host/Proto. Sin estas cabeceras, los callbacks
 // OAuth se generarian con http://api:8080 en lugar de la URL publica.
@@ -82,6 +85,12 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 
 ApplyMigrations(app);
+// PRUEBA LOCAL: crear tabla de sesiones DESPUÉS de las migraciones EF Core.
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<LocalSingleSignOutStore>()
+        .InitializeAsync().GetAwaiter().GetResult();
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
